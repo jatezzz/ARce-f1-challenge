@@ -47,9 +47,16 @@ struct LapReplayView: View {
             case .playing, .stopped:
                 VStack {
                     Spacer()
-                    HStack(alignment: .bottom) {
-                        DataBubbleView()
-                        renderStartStop()
+                    ZStack {
+                        HStack(alignment: .bottom) {
+                            DataBubbleView()
+                                .frame(alignment: .leading)
+                            Spacer()
+                            if !selectionIndex.isEmpty {
+                                DataBubbleView()
+                                    .frame(alignment: .trailing)
+                            }
+                        }
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -62,32 +69,44 @@ struct LapReplayView: View {
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Menu("Compare", content: {
+                Menu {
                     Picker("Sort by", selection: $selectionIndex) {
                         ForEach(sessionsModel.sessions.filter { $0.trackId == session.trackId }, id: \.mSessionid) { session in
                             Text("\(session.driver) - \(session.mSessionid)").tag(session.mSessionid)
                         }
+                        Text("Deselect").tag("")
                     }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                }
+            }
+
+            ToolbarItemGroup(placement: .bottomBar) {
+                let playing = appModel.appState == .playing
+
+                Button(action: {
+
+                }, label: {
+                    Image(systemName: "heart")
                 })
 
+                Spacer()
+
+                Button(action: {
+                    appModel.appState = playing ? .stopped : .playing
+                }, label: {
+                    Image(systemName: playing ? "pause" : "play")
+                })
+
+                Spacer()
+
+                Button(action: {
+
+                }, label: {
+                    Image(systemName: "info.circle")
+                })
             }
         }
-    }
-    
-    @ViewBuilder
-    private func renderStartStop() -> some View {
-        HStack {
-            Spacer()
-            
-            let playing = appModel.appState == .playing
-            
-            Button { appModel.appState = playing ? .stopped : .playing }
-        label: { Image(systemName: playing ? "pause.circle" : "play.circle") }
-        }
-        .buttonStyle(PlainButtonStyle())
-        .foregroundColor(.white.opacity(0.3))
-        .font(.system(size: 50))
-        .padding()
     }
 }
 
