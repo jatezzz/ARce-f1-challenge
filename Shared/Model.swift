@@ -55,17 +55,21 @@ struct Motion: Codable {
 typealias SessionsData = [Session]
 
 struct Session: Codable {
-    let mGamehost, mSessionid: String
+
+    let mSessionid: String
+    let mGamehost: String
+    let trackId: String
     let driver: String
-    let laps: Int
     let sessionTime: String
+    let laps: Int
 
     enum CodingKeys: String, CodingKey {
-        case mGamehost = "M_GAMEHOST"
         case mSessionid = "M_SESSIONID"
+        case mGamehost = "M_GAMEHOST"
+        case trackId = "TRACKID"
         case driver = "DRIVER"
-        case laps = "LAPS"
         case sessionTime = "SESSION_TIME"
+        case laps = "LAPS"
     }
 }
 

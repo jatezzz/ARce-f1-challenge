@@ -10,7 +10,7 @@ import SwiftUI
 struct MainView: View {
     @StateObject var dataModel = SessionsDataModel()
     @StateObject var appModel = AppModel.shared
-        
+
     var body: some View {
         NavigationView {
             if appModel.appState == .loadingSessions {
