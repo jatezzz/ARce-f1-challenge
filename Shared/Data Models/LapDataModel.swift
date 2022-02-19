@@ -71,18 +71,28 @@ final class LapDataModel: ObservableObject {
         arView.scene.addAnchor(cameraAnchor)
         #endif
 
+
         // • The car
         let myCar = carScene.car!
         let trackingCone = carScene.trackingCone!
-                
+
+
+        //Box
+        let box = MeshResource.generateBox(size: 0.03) // Generate mesh
+        let boxMaterial = SimpleMaterial(color: .green, isMetallic: true)
+        let boxEntity = ModelEntity(mesh: box, materials: [boxMaterial])
+
+        carScene.addChild(boxEntity)
+
+
         myCar.transform.scale = [1, 1, 1] * 0.0008
-        
+
         // • Reference car
 //        let fastestCar = myCar.clone(recursive: true)
-                        
+
         // Initially position the camera
         #if os(macOS)
-        cameraEntity.look(at: myTrack.position, from: [0,50,0], relativeTo: nil)
+        cameraEntity.look(at: myTrack.position, from: [0, 50, 0], relativeTo: nil)
         #endif
                 
         // Run the car
@@ -112,7 +122,9 @@ final class LapDataModel: ObservableObject {
 //            fastestCar.transform = myTrackTransformed.convert(transform: fastestCar.transform, to: myTrack)
 
             #if os(macOS)
-            cameraEntity.look(at: myCar.position, from: [0.1,0.1,0], relativeTo: nil)
+            cameraEntity.look(at: myCar.position, from: [0.1, 0.1, 0], relativeTo: nil)
+            boxEntity.position = [myCar.position.x, myCar.position.y + 0.05, myCar.position.z]
+            trackingCone.position = [myCar.position.x, myCar.position.y + 0.05, myCar.position.z]
             #else
             trackingCone.position = [myCar.position.x, myCar.position.y + 0.05, myCar.position.z]
             #endif
