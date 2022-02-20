@@ -26,32 +26,53 @@ final class SessionsDataModel: ObservableObject {
         self.sessions = []
         AppModel.shared.appState = .loadingSessions
         
-        self.cancellable = fetchSessionsData()
-            .receive(on: RunLoop.main)
-            .sink { completion in
-                print(completion)
-                
-                switch completion {
+        self.cancellable = NetworkHelper.shared.fetchCachedFile(for: "sessions_response", with: [Session].self)
+                .receive(on: RunLoop.main)
+                .sink { completion in
+                    print(completion)
+
+                    switch completion {
                     case .finished:
                         AppModel.shared.appState = .waitToLoadTrack
-                    case let .failure(error) :
+                    case let .failure(error):
                         AppModel.shared.appState = .error(msg: error.localizedDescription)
-                }
+                    }
                 
             } receiveValue: { items in
                 self.sessions = items
                 print("*")
             }
     }
-    
-    private func fetchSessionsData() -> AnyPublisher<[Session], Error>{
+
+    private func fetchSessionsData() -> AnyPublisher<[Session], Error> {
         let url = URL(string: "https://apigw.withoracle.cloud/formulaai/sessions")!
-        
+
         return URLSession.shared
-            .dataTaskPublisher(for: url)
-            .map (\.data)
-            .decode(type: SessionsData.self, decoder: JSONDecoder())
-            .eraseToAnyPublisher()
+                .dataTaskPublisher(for: url)
+                .map(\.data)
+                .decode(type: SessionsData.self, decoder: JSONDecoder())
+                .eraseToAnyPublisher()
     }
-    
+
+    private func fetchSessionsDataCache(for file: String) -> AnyPublisher<[Session], Error> {
+        Deferred {
+            Future<JSONDecoder.Input, Error> { promise in
+                if let path = Bundle.main.path(forResource: file, ofType: "json") {
+                    do {
+                        let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
+                        promise(.success(data))
+                    } catch {
+                        promise(.failure(error))
+                    }
+                } else {
+                    promise(.success(Data()))
+                }
+            }
+        }
+                .decode(type: [Session].self, decoder: JSONDecoder())
+                //.map { $0.sorted { $0.mFrame < $1.mFrame } }
+                .eraseToAnyPublisher()
+
+    }
+
 }

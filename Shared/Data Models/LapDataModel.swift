@@ -11,52 +11,51 @@ import RealityKit
 import SwiftUI
 
 final class LapDataModel: ObservableObject {
-    
+
     static var shared = LapDataModel()
-        
+
     @Published var arView: ARView!
-    
+
     @Published var currentSpeed: Int = 0
     @Published var currentRPM: Int = 0
     @Published var currentGear: Int = 0
     @Published var currentSector: Int = 0
     @Published var currentLap: Int = 0
-        
+
     private var carPositions: [Motion] = []
     let customCar: ObjectInRace
     private var fastestLapPositions: [Motion] = []
 
-    
+
     private var sceneEventsUpdateSubscription: Cancellable!
     private var carAnchor: AnchorEntity?
-    
+
     private var cancellable = Set<AnyCancellable>()
-        
-    init () {
+
+    init() {
         // load the fastest lap
         //loadFastestLap()
-        
+
         // Create the 3D view
         arView = ARView(frame: .zero)
-        
 
-        
+
         // • The reference track, positioned in Reality Composer to match the API coordinated
         let carScene = try! COTA.loadTrack()
-                        
+
         // Hidding the reference track
         let myTrack = carScene.track3!
         myTrack.isEnabled = false
-        
+
         // • Loading the nice track from the usdc file
         let myTrackTransformed = try! Entity.load(named: "1960Final")
-        
+
         let trackAnchor = AnchorEntity(world: .zero)
         trackAnchor.addChild(myTrackTransformed)
-        
-        myTrackTransformed.orientation = simd_quatf(angle: .pi/4, axis: [0,1,0])
 
-        
+        myTrackTransformed.orientation = simd_quatf(angle: .pi / 4, axis: [0, 1, 0])
+
+
         // • The camera
         #if os(macOS)
         let cameraEntity = PerspectiveCamera()
@@ -106,29 +105,29 @@ final class LapDataModel: ObservableObject {
             self.customCar.update()
         }
     }
-    
+
     private func loadFastestLap() {
         self.fastestLapPositions = []
-        
-        URLSession.shared
-            .dataTaskPublisher(for: URL(string: "https://apigw.withoracle.cloud/livelaps/carData/fastestlap")!)
-            .map (\.data)
-            .decode(type: LapData.self, decoder: JSONDecoder())
-            .receive(on: RunLoop.main)
-            .sink { completion in
-                print (completion)
 
-                switch completion {
+        URLSession.shared
+                .dataTaskPublisher(for: URL(string: "https://apigw.withoracle.cloud/livelaps/carData/fastestlap")!)
+                .map(\.data)
+                .decode(type: LapData.self, decoder: JSONDecoder())
+                .receive(on: RunLoop.main)
+                .sink { completion in
+                    print(completion)
+
+                    switch completion {
                     case .finished: () // done, nothing to do
-                    case let .failure(error) : AppModel.shared.appState = .error(msg: error.localizedDescription)
+                    case let .failure(error): AppModel.shared.appState = .error(msg: error.localizedDescription)
+                    }
+                } receiveValue: { items in
+                    self.fastestLapPositions.append(contentsOf: items)
+                    print("*-")
                 }
-            } receiveValue: { items in
-                self.fastestLapPositions.append(contentsOf: items)
-                print("*-")
-            }
-            .store(in: &self.cancellable)
+                .store(in: &self.cancellable)
     }
-    
+
     func load(session: Session) {
         AppModel.shared.appState = .loadingTrack
         self.cancellable = []
@@ -136,7 +135,7 @@ final class LapDataModel: ObservableObject {
         customCar.trackPositions = []
         customCar.currentFrame = 0
 
-        fetchTrackData(for: session)
+        NetworkHelper.shared.fetchCachedFile(for: "track_response", with: [Track].self)
                 .receive(on: RunLoop.main)
                 .sink { completion in
                     print(completion)
@@ -151,10 +150,10 @@ final class LapDataModel: ObservableObject {
                     if self.customCar.trackPositions.count > 0 {
                         AppModel.shared.appState = .playing // we start playing after the first lap is loaded, the rest are coming in the background
                     }
-                
-                print("*")
-            }
-            .store(in: &self.cancellable)
+
+                    print("*")
+                }
+                .store(in: &self.cancellable)
     }
 
     private func fetchPositionData(for session: Session) -> AnyPublisher<[Motion], Error> {
@@ -173,11 +172,17 @@ final class LapDataModel: ObservableObject {
 //            .map { URL(string: "https://apigw.withoracle.cloud/formulaai/carData/1127492326198450576/1/0")! }
         URLSession.shared.dataTaskPublisher(for: URL(string: "https://apigw.withoracle.cloud/formulaai/v2/trackData/13315121676340788867/1")!)
                 //            .flatMap(maxPublishers: .max(1)) { $0 } // we serialize the request because we want the laps in the correct order
-                .map(\.data)
+                //                .map(\.data)
+                .map({
+                    let stringRepresentation = String(data: $0.data, encoding: .utf8)
+                    print(stringRepresentation!)
+                    return $0.data
+                })
                 .decode(type: [Track].self, decoder: JSONDecoder())
                 //.map { $0.sorted { $0.mFrame < $1.mFrame } }
                 .eraseToAnyPublisher()
     }
+
 
     // https://apigw.withoracle.cloud/formulaai/trackData/1127492326198450576/1
 }

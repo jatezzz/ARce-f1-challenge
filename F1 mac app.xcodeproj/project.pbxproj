@@ -34,6 +34,12 @@
 		02FDDC6D2719A9E800E3587F /* 1960Final.usdc in Resources */ = {isa = PBXBuildFile; fileRef = 02FDDC6B2719A9E800E3587F /* 1960Final.usdc */; };
 		625964AA27C1A236003770C1 /* DriversListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 625964A927C1A236003770C1 /* DriversListView.swift */; };
 		625964AB27C1A236003770C1 /* DriversListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 625964A927C1A236003770C1 /* DriversListView.swift */; };
+		936D006F4BCABCB5D5DD2125 /* NetworkHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 936D047256AF150D0C784681 /* NetworkHelper.swift */; };
+		936D07B41D809E97AC592F8C /* NetworkHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 936D047256AF150D0C784681 /* NetworkHelper.swift */; };
+		A287686927C2909A00A8D52A /* track_response.json in Resources */ = {isa = PBXBuildFile; fileRef = A287686827C2909A00A8D52A /* track_response.json */; };
+		A287686A27C290A200A8D52A /* track_response.json in Resources */ = {isa = PBXBuildFile; fileRef = A287686827C2909A00A8D52A /* track_response.json */; };
+		A287686C27C2929800A8D52A /* sessions_response.json in Resources */ = {isa = PBXBuildFile; fileRef = A287686B27C2929800A8D52A /* sessions_response.json */; };
+		A287686D27C2929C00A8D52A /* sessions_response.json in Resources */ = {isa = PBXBuildFile; fileRef = A287686B27C2929800A8D52A /* sessions_response.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -58,6 +64,9 @@
 		02FDCA4E26DF8822002E6C28 /* LapDataModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LapDataModel.swift; sourceTree = "<group>"; };
 		02FDDC6B2719A9E800E3587F /* 1960Final.usdc */ = {isa = PBXFileReference; lastKnownFileType = file; path = 1960Final.usdc; sourceTree = "<group>"; };
 		625964A927C1A236003770C1 /* DriversListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriversListView.swift; sourceTree = "<group>"; };
+		936D047256AF150D0C784681 /* NetworkHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkHelper.swift; sourceTree = "<group>"; };
+		A287686827C2909A00A8D52A /* track_response.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = track_response.json; path = Shared/track_response.json; sourceTree = "<group>"; };
+		A287686B27C2929800A8D52A /* sessions_response.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = sessions_response.json; path = Shared/sessions_response.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +115,7 @@
 				02E7FFF227074CE70029E234 /* AppModel.swift */,
 				02FDCA4E26DF8822002E6C28 /* LapDataModel.swift */,
 				021E2C0D26FCB7CF00D76B0E /* SessionsDataModel.swift */,
+				936D047256AF150D0C784681 /* NetworkHelper.swift */,
 			);
 			path = "Data Models";
 			sourceTree = "<group>";
@@ -132,6 +142,8 @@
 		02FDCA3426DF87BD002E6C28 = {
 			isa = PBXGroup;
 			children = (
+				A287686B27C2929800A8D52A /* sessions_response.json */,
+				A287686827C2909A00A8D52A /* track_response.json */,
 				020AEBC626F89274008DDDE9 /* Shared */,
 				02FDCA3F26DF87BD002E6C28 /* F1 mac app */,
 				02F3DBE026F8BF80006953F3 /* F1 iPhone AR app */,
@@ -258,6 +270,8 @@
 			files = (
 				02F3DBEB26F8BF82006953F3 /* Preview Assets.xcassets in Resources */,
 				02FDDC6D2719A9E800E3587F /* 1960Final.usdc in Resources */,
+				A287686D27C2929C00A8D52A /* sessions_response.json in Resources */,
+				A287686A27C290A200A8D52A /* track_response.json in Resources */,
 				02F3DBE826F8BF82006953F3 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -267,7 +281,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				02FDCA4826DF87BF002E6C28 /* Preview Assets.xcassets in Resources */,
+				A287686927C2909A00A8D52A /* track_response.json in Resources */,
 				02FDDC6C2719A9E800E3587F /* 1960Final.usdc in Resources */,
+				A287686C27C2929800A8D52A /* sessions_response.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -289,6 +305,7 @@
 				02F3DBF126F8BFF9006953F3 /* LapDataModel.swift in Sources */,
 				021E2C0F26FCB7CF00D76B0E /* SessionsDataModel.swift in Sources */,
 				027BC28626FDF15700751081 /* LapReplayView.swift in Sources */,
+				936D006F4BCABCB5D5DD2125 /* NetworkHelper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -307,6 +324,7 @@
 				027BC28326FDF08300751081 /* ARViewContainer.swift in Sources */,
 				02FDCA4F26DF8822002E6C28 /* LapDataModel.swift in Sources */,
 				021E2C0E26FCB7CF00D76B0E /* SessionsDataModel.swift in Sources */,
+				936D07B41D809E97AC592F8C /* NetworkHelper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
