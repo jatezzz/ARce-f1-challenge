@@ -88,14 +88,14 @@ struct DataBubbleView: View {
             HStack(spacing: 5) {
                 Text("Lap")
                     .frame(width: titleColWidth, alignment: .leading)
-                Text("\(dataModel.currentLap)")
+                Text("\(currentData.currentLap)")
                     .fontWeight(.bold)
                     .frame(width: valueColWidth, alignment: .trailing)
             }
             HStack(spacing: 5) {
                 Text("Sector")
                     .frame(width: titleColWidth, alignment: .leading)
-                Text("\(dataModel.currentSector + 1)")
+                Text("\(currentData.currentSector + 1)")
                     .fontWeight(.bold)
                     .frame(width: valueColWidth, alignment: .trailing)
             }
