@@ -13,6 +13,13 @@ import Combine
 final class NetworkHelper {
     static var shared = NetworkHelper()
 
+    func fetchPositionData(for rawUrl: String) -> AnyPublisher<[Motion], Error> {
+        URLSession.shared.dataTaskPublisher(for: URL(string: rawUrl)!)
+                .map(\.data)
+                .decode(type: LapData.self, decoder: JSONDecoder())
+                .eraseToAnyPublisher()
+    }
+
     func fetchCachedFile<T: Decodable>(for file: String, with: T.Type) -> AnyPublisher<T, Error> {
         Deferred {
             Future<JSONDecoder.Input, Error> { promise in

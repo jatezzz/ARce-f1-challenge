@@ -136,8 +136,10 @@ final class LapDataModel: ObservableObject {
         self.carPositions = []
         customCar.reset()
         boxObjectInModel.reset()
-
-        fetchPositionData(for: "https://apigw.withoracle.cloud/formulaai/carData/13315121676340788867/1/0")
+        Publishers.CombineLatest(
+                        NetworkHelper.shared.fetchPositionData(for: "https://apigw.withoracle.cloud/formulaai/carData/13315121676340788867/1"),
+                        NetworkHelper.shared.fetchPositionData(for: "https://apigw.withoracle.cloud/formulaai/carData/9296252324797135598/1")
+                )
                 .receive(on: RunLoop.main)
                 .sink { completion in
                     print(completion)
@@ -150,7 +152,8 @@ final class LapDataModel: ObservableObject {
                     case let .failure(error): AppModel.shared.appState = .error(msg: error.localizedDescription)
                     }
                 } receiveValue: { items in
-                    self.customCar.positionList.append(contentsOf: items)
+                    self.customCar.positionList.append(contentsOf: items.0)
+                    self.boxObjectInModel.positionList.append(contentsOf: items.1)
 
                     if self.customCar.positionList.count > 0 {
                         AppModel.shared.appState = .playing // we start playing after the first lap is loaded, the rest are coming in the background
@@ -159,37 +162,7 @@ final class LapDataModel: ObservableObject {
                     print("*")
                 }
                 .store(in: &self.cancellable)
-        fetchPositionData(for: "https://apigw.withoracle.cloud/formulaai/carData/9296252324797135598/1/0")
-                .receive(on: RunLoop.main)
-                .sink { completion in
-                    print(completion)
-                    let heights = [self.boxObjectInModel.positionList.count, self.customCar.positionList.count]
-                    self.boxObjectInModel.frameQuantity = heights.min() ?? self.boxObjectInModel.positionList.count
-                    self.customCar.frameQuantity = heights.min() ?? self.customCar.positionList.count
-
-                    switch completion {
-                    case .finished: () // done, nothing to do
-                    case let .failure(error): AppModel.shared.appState = .error(msg: error.localizedDescription)
-                    }
-                } receiveValue: { items in
-                    self.boxObjectInModel.positionList.append(contentsOf: items)
-
-                    print("*")
-                }
-                .store(in: &self.cancellable)
     }
-
-    private func fetchPositionData(for rawUrl: String) -> AnyPublisher<[Motion], Error> {
-//        (1...session.laps)
-//            .map { URL(string: "https://apigw.withoracle.cloud/formulaai/carData/1127492326198450576/1/0")! }
-        URLSession.shared.dataTaskPublisher(for: URL(string: rawUrl)!)
-                //            .flatMap(maxPublishers: .max(1)) { $0 } // we serialize the request because we want the laps in the correct order
-                .map(\.data)
-                .decode(type: LapData.self, decoder: JSONDecoder())
-                //.map { $0.sorted { $0.mFrame < $1.mFrame } }
-                .eraseToAnyPublisher()
-    }
-
 
 }
 
