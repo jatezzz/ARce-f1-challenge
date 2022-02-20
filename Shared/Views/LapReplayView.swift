@@ -84,33 +84,34 @@ struct LapReplayView: View {
                     DriversListView(presentedAsModal: self.$presentingModal, session: session, selectedSession: $compareSession)
                 }
             }
+#if !os(macOS)
+            ToolbarItemGroup(placement: .bottomBar) {
+                let playing = appModel.appState == .playing
 
-//            ToolbarItemGroup(placement: .bottomBar) {
-//                let playing = appModel.appState == .playing
-//
-//                Button(action: {
-//
-//                }, label: {
-//                    Image(systemName: "heart")
-//                })
-//
-//                Spacer()
-//
-//                Button(action: {
-//                    appModel.appState = playing ? .stopped : .playing
-//                }, label: {
-//                    Image(systemName: playing ? "pause" : "play")
-//                })
-//
-//                Spacer()
-//
-//                Button {
-//
-//                } label: {
-//                    Image(systemName: "info.circle")
-//                }
-//
-//            }
+                Button(action: {
+
+                }, label: {
+                    Image(systemName: "heart")
+                })
+
+                Spacer()
+
+                Button(action: {
+                    appModel.appState = playing ? .stopped : .playing
+                }, label: {
+                    Image(systemName: playing ? "pause" : "play")
+                })
+
+                Spacer()
+
+                Button {
+
+                } label: {
+                    Image(systemName: "info.circle")
+                }
+
+            }
+            #endif
         }
     }
 }

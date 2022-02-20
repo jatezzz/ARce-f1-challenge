@@ -11,7 +11,13 @@ import Foundation
 
 typealias LapData = [Motion]
 
-struct Motion: Codable {
+protocol LocationInModel {
+    var mWorldposx: Double { get }
+    var mWorldposy: Double { get }
+    var mWorldposz: Double { get }
+}
+
+struct Motion: Codable, LocationInModel {
     let mFrame: Int
     let mTimestamp: String
     let mCurrentLap, mSector, mLastLapTimeInMS, mSpeed: Int
@@ -48,7 +54,7 @@ struct Motion: Codable {
     }
 }
 
-struct Track: Codable {
+struct Track: Codable, LocationInModel {
     let mFrame: Int
     let mTimestamp: String
     let mCurrentLap, mSector, mSpeed: Int
@@ -75,6 +81,7 @@ struct Track: Codable {
         case mWorldrightdirz = "WORLDRIGHTDIRZ"
     }
 }
+
 // MARK: - Sessions
 
 typealias SessionsData = [Session]

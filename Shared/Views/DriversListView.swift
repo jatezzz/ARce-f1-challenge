@@ -17,16 +17,16 @@ struct DriversListView: View {
 
     var body: some View {
         VStack {
-
+#if os(macOS)
             List(sessionsModel.sessions.filter { $0.trackId == session.trackId }, id: \.self, selection: $selectedSession) { session in
                 HStack {
                     Image("driver-placeholder")
-                        .resizable()
-                        .scaledToFit()
-                        .padding()
-                        .background(Color.gray)
-                        .clipShape(Circle())
-                        .frame(width: 60, height: 60)
+                            .resizable()
+                            .scaledToFit()
+                            .padding()
+                            .background(Color.gray)
+                            .clipShape(Circle())
+                            .frame(width: 60, height: 60)
 
                     VStack(alignment: .leading, spacing: 5) {
                         Text(session.driver)
@@ -36,7 +36,27 @@ struct DriversListView: View {
 
                 }
             }
-//            .environment(\.editMode, .constant(.active))
+            #else
+            List(sessionsModel.sessions.filter { $0.trackId == session.trackId }, id: \.self, selection: $selectedSession) { session in
+                HStack {
+                    Image("driver-placeholder")
+                            .resizable()
+                            .scaledToFit()
+                            .padding()
+                            .background(Color.gray)
+                            .clipShape(Circle())
+                            .frame(width: 60, height: 60)
+
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(session.driver)
+                        Text(session.mSessionid)
+                                .font(.subheadline)
+                    }
+
+                }
+            }
+                    .environment(\.editMode, .constant(.active))
+            #endif
         }
         Button("dismiss") { self.presentedAsModal = false }
     }

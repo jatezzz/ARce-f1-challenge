@@ -24,6 +24,7 @@ final class LapDataModel: ObservableObject {
 
     private var carPositions: [Motion] = []
     let customCar: ObjectInRace
+    let boxObjectInModel: ObjectInRace
     private var fastestLapPositions: [Motion] = []
 
 
@@ -72,7 +73,7 @@ final class LapDataModel: ObservableObject {
 
 
         //Box
-        let box = MeshResource.generateBox(size: 0.03) // Generate mesh
+        let box = MeshResource.generateBox(size: 0.005) // Generate mesh
         let boxMaterial = SimpleMaterial(color: .green, isMetallic: true)
         let boxEntity = ModelEntity(mesh: box, materials: [boxMaterial])
 
@@ -82,7 +83,7 @@ final class LapDataModel: ObservableObject {
         myCar.transform.scale = [1, 1, 1] * 0.0008
 
         // • Reference car
-//        let fastestCar = myCar.clone(recursive: true)
+        let fastestCar = myCar.clone(recursive: true)
 
         // Initially position the camera
         #if os(macOS)
@@ -90,8 +91,8 @@ final class LapDataModel: ObservableObject {
         #endif
 
         // Run the car
-        customCar = ObjectInRace(car: myCar, camera: cameraEntity, referenceEntityTransform: myTrackTransformed, referenceEntity: myTrack)
-
+        customCar = ObjectInRace(entity: myCar, camera: nil, referenceEntityTransform: myTrackTransformed, referenceEntity: myTrack)
+        boxObjectInModel = ObjectInRace(entity: boxEntity, camera: cameraEntity, referenceEntityTransform: myTrackTransformed, referenceEntity: myTrack)
 
         #if !targetEnvironment(simulator) && !os(macOS)
         arView.addCoaching()
@@ -103,6 +104,7 @@ final class LapDataModel: ObservableObject {
         #endif
         sceneEventsUpdateSubscription = arView.scene.subscribe(to: SceneEvents.Update.self) { _ in
             self.customCar.update()
+            self.boxObjectInModel.update()
         }
     }
 
@@ -132,13 +134,16 @@ final class LapDataModel: ObservableObject {
         AppModel.shared.appState = .loadingTrack
         self.cancellable = []
         self.carPositions = []
-        customCar.trackPositions = []
-        customCar.currentFrame = 0
+        customCar.reset()
+        boxObjectInModel.reset()
 
-        NetworkHelper.shared.fetchCachedFile(for: "track_response", with: [Track].self)
+        NetworkHelper.shared.fetchCachedFile(for: "carData3_response", with: [Motion].self)
                 .receive(on: RunLoop.main)
                 .sink { completion in
                     print(completion)
+                    let heights = [self.boxObjectInModel.trackPositions.count, self.customCar.trackPositions.count]
+                    self.boxObjectInModel.frameQuantity = heights.min() ?? self.boxObjectInModel.trackPositions.count
+                    self.customCar.frameQuantity = heights.min() ?? self.customCar.trackPositions.count
 
                     switch completion {
                     case .finished: () // done, nothing to do
@@ -150,6 +155,24 @@ final class LapDataModel: ObservableObject {
                     if self.customCar.trackPositions.count > 0 {
                         AppModel.shared.appState = .playing // we start playing after the first lap is loaded, the rest are coming in the background
                     }
+
+                    print("*")
+                }
+                .store(in: &self.cancellable)
+        NetworkHelper.shared.fetchCachedFile(for: "carData2_response", with: [Motion].self)
+                .receive(on: RunLoop.main)
+                .sink { completion in
+                    print(completion)
+                    let heights = [self.boxObjectInModel.trackPositions.count, self.customCar.trackPositions.count]
+                    self.boxObjectInModel.frameQuantity = heights.min() ?? self.boxObjectInModel.trackPositions.count
+                    self.customCar.frameQuantity = heights.min() ?? self.customCar.trackPositions.count
+
+                    switch completion {
+                    case .finished: () // done, nothing to do
+                    case let .failure(error): AppModel.shared.appState = .error(msg: error.localizedDescription)
+                    }
+                } receiveValue: { items in
+                    self.boxObjectInModel.trackPositions.append(contentsOf: items)
 
                     print("*")
                 }
@@ -191,18 +214,24 @@ final class LapDataModel: ObservableObject {
 class ObjectInRace {
 
     var currentFrame = 0
+    var frameQuantity = 0
 
-    var trackPositions: [Track] = []
-    let myCar: Entity
-    let cameraEntity: PerspectiveCamera
+    var trackPositions: [LocationInModel] = []
+    let mainEntity: Entity
+    let cameraEntity: PerspectiveCamera?
     let referenceEntity: Entity
     let referenceEntityTransform: Entity
 
-    init(car: Entity, camera: PerspectiveCamera, referenceEntityTransform: Entity, referenceEntity: Entity) {
-        myCar = car
+    init(entity: Entity, camera: PerspectiveCamera?, referenceEntityTransform: Entity, referenceEntity: Entity) {
+        mainEntity = entity
         self.cameraEntity = camera
         self.referenceEntityTransform = referenceEntityTransform
         self.referenceEntity = referenceEntity
+    }
+
+    func reset() {
+        trackPositions = []
+        currentFrame = 0
     }
 
     func update() {
@@ -210,15 +239,15 @@ class ObjectInRace {
 
         let cp = self.trackPositions[self.currentFrame]
 
-        myCar.position = SIMD3<Float>([cp.mWorldposy, cp.mWorldposz, cp.mWorldposx] / 1960)
-        myCar.transform.rotation = Transform(pitch: Float.pi, yaw: 0, roll: 0).rotation
+        mainEntity.position = SIMD3<Float>([cp.mWorldposy, cp.mWorldposz, cp.mWorldposx] / 1960)
+        mainEntity.transform.rotation = Transform(pitch: Float.pi, yaw: 0, roll: 0).rotation
 
         // converting the API coordinates to match the visible track
-        myCar.transform = referenceEntityTransform.convert(transform: myCar.transform, to: referenceEntity)
+        mainEntity.transform = referenceEntityTransform.convert(transform: mainEntity.transform, to: referenceEntity)
 
         #if os(macOS)
-        cameraEntity.look(at: myCar.position, from: [0.1, 0.1, 0], relativeTo: nil)
+        cameraEntity?.look(at: mainEntity.position, from: [0.1, 0.1, 0], relativeTo: nil)
         #endif
-        self.currentFrame = (self.currentFrame < self.trackPositions.count - 1) ? (self.currentFrame + 1) : 0
+        self.currentFrame = (self.currentFrame < self.frameQuantity - 1) ? (self.currentFrame + 1) : 0
     }
 }
