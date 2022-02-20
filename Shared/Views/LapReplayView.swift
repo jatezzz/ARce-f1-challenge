@@ -66,8 +66,18 @@ struct LapReplayView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
+                VStack {
+                    HStack{
+                        OverlayButtonsView()
+                        Spacer()
+                    } .padding()
+                    Spacer()
+                }
+
             default: EmptyView()
             }
+
+
         }
         .onAppear {
             dataModel.load(session: session)
