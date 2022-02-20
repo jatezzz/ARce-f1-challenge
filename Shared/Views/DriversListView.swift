@@ -10,6 +10,7 @@ import SwiftUI
 struct DriversListView: View {
 
     @StateObject var sessionsModel = SessionsDataModel.shared
+    @StateObject var dataModel = LapDataModel.shared
 
     @Binding var presentedAsModal: Bool
     @State var session: Session
@@ -17,7 +18,7 @@ struct DriversListView: View {
 
     var body: some View {
         VStack {
-#if os(macOS)
+            #if os(macOS)
             List(sessionsModel.sessions.filter { $0.trackId == session.trackId }, id: \.self, selection: $selectedSession) { session in
                 HStack {
                     Image("driver-placeholder")
@@ -35,6 +36,10 @@ struct DriversListView: View {
                     }
 
                 }
+                        .onTapGesture {
+                            self.presentedAsModal = false
+                            dataModel.addSession(session: session)
+                        }
             }
             #else
             List(sessionsModel.sessions.filter { $0.trackId == session.trackId }, id: \.self, selection: $selectedSession) { session in

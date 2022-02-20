@@ -20,6 +20,18 @@ final class NetworkHelper {
                 .eraseToAnyPublisher()
     }
 
+    func fetchPositionData(for session: Session) -> AnyPublisher<[Motion], Error>{
+        (1...session.laps)
+                .map { URL(string: "https://apigw.withoracle.cloud/formulaai/carData/\(session.mSessionid)/\($0)")! }
+                .map { URLSession.shared.dataTaskPublisher(for: $0) }
+                .publisher
+                .flatMap(maxPublishers: .max(1)) { $0 } // we serialize the request because we want the laps in the correct order
+                .map (\.data)
+                .decode(type: LapData.self, decoder: JSONDecoder())
+                //.map { $0.sorted { $0.mFrame < $1.mFrame } }
+                .eraseToAnyPublisher()
+    }
+
     func fetchCachedFile<T: Decodable>(for file: String, with: T.Type) -> AnyPublisher<T, Error> {
         Deferred {
             Future<JSONDecoder.Input, Error> { promise in

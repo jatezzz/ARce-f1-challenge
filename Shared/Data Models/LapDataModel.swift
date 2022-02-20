@@ -22,7 +22,6 @@ final class LapDataModel: ObservableObject {
     @Published var currentSector: Int = 0
     @Published var currentLap: Int = 0
 
-    private var carPositions: [Motion] = []
     let customCar: ObjectInRace
     let boxObjectInModel: ObjectInRace
     private var fastestLapPositions: [Motion] = []
@@ -91,8 +90,8 @@ final class LapDataModel: ObservableObject {
         #endif
 
         // Run the car
-        customCar = ObjectInRace(entity: myCar, camera: nil, referenceEntityTransform: myTrackTransformed, referenceEntity: myTrack)
-        boxObjectInModel = ObjectInRace(entity: boxEntity, camera: cameraEntity, referenceEntityTransform: myTrackTransformed, referenceEntity: myTrack)
+        customCar = ObjectInRace(entity: myCar, camera: cameraEntity, referenceEntityTransform: myTrackTransformed, referenceEntity: myTrack)
+        boxObjectInModel = ObjectInRace(entity: boxEntity, camera: nil, referenceEntityTransform: myTrackTransformed, referenceEntity: myTrack)
 
         #if !targetEnvironment(simulator) && !os(macOS)
         arView.addCoaching()
@@ -133,13 +132,34 @@ final class LapDataModel: ObservableObject {
     func load(session: Session) {
         AppModel.shared.appState = .loadingTrack
         self.cancellable = []
-        self.carPositions = []
         customCar.reset()
+        NetworkHelper.shared.fetchPositionData(for: session)
+                .receive(on: RunLoop.main)
+                .sink { completion in
+                    print(completion)
+                    self.customCar.frameQuantity = self.customCar.positionList.count
+
+                    switch completion {
+                    case .finished: () // done, nothing to do
+                    case let .failure(error): AppModel.shared.appState = .error(msg: error.localizedDescription)
+                    }
+                } receiveValue: { items in
+                    self.customCar.positionList.append(contentsOf: items)
+
+                    if self.customCar.positionList.count > 0 {
+                        AppModel.shared.appState = .playing // we start playing after the first lap is loaded, the rest are coming in the background
+                    }
+
+                    print("*")
+                }
+                .store(in: &self.cancellable)
+    }
+
+    func addSession(session: Session) {
+        AppModel.shared.appState = .loadingTrack
+        self.cancellable = []
         boxObjectInModel.reset()
-        Publishers.CombineLatest(
-                        NetworkHelper.shared.fetchPositionData(for: "https://apigw.withoracle.cloud/formulaai/carData/13315121676340788867/1"),
-                        NetworkHelper.shared.fetchPositionData(for: "https://apigw.withoracle.cloud/formulaai/carData/9296252324797135598/1")
-                )
+        NetworkHelper.shared.fetchPositionData(for: session)
                 .receive(on: RunLoop.main)
                 .sink { completion in
                     print(completion)
@@ -152,10 +172,9 @@ final class LapDataModel: ObservableObject {
                     case let .failure(error): AppModel.shared.appState = .error(msg: error.localizedDescription)
                     }
                 } receiveValue: { items in
-                    self.customCar.positionList.append(contentsOf: items.0)
-                    self.boxObjectInModel.positionList.append(contentsOf: items.1)
+                    self.boxObjectInModel.positionList.append(contentsOf: items)
 
-                    if self.customCar.positionList.count > 0 {
+                    if self.boxObjectInModel.positionList.count > 0 {
                         AppModel.shared.appState = .playing // we start playing after the first lap is loaded, the rest are coming in the background
                     }
 
@@ -163,7 +182,6 @@ final class LapDataModel: ObservableObject {
                 }
                 .store(in: &self.cancellable)
     }
-
 }
 
 
@@ -191,7 +209,7 @@ class ObjectInRace {
     }
 
     func update() {
-        guard AppModel.shared.appState == .playing else { return }
+        guard AppModel.shared.appState == .playing, !self.positionList.isEmpty else { return }
 
         let cp = self.positionList[self.currentFrame]
 
