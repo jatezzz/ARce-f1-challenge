@@ -137,52 +137,52 @@ final class LapDataModel: ObservableObject {
         customCar.reset()
         boxObjectInModel.reset()
 
-        NetworkHelper.shared.fetchCachedFile(for: "carData3_response", with: [Motion].self)
+        fetchPositionData(for: "https://apigw.withoracle.cloud/formulaai/carData/13315121676340788867/1/0")
                 .receive(on: RunLoop.main)
                 .sink { completion in
                     print(completion)
-                    let heights = [self.boxObjectInModel.trackPositions.count, self.customCar.trackPositions.count]
-                    self.boxObjectInModel.frameQuantity = heights.min() ?? self.boxObjectInModel.trackPositions.count
-                    self.customCar.frameQuantity = heights.min() ?? self.customCar.trackPositions.count
+                    let heights = [self.boxObjectInModel.positionList.count, self.customCar.positionList.count]
+                    self.boxObjectInModel.frameQuantity = heights.min() ?? self.boxObjectInModel.positionList.count
+                    self.customCar.frameQuantity = heights.min() ?? self.customCar.positionList.count
 
                     switch completion {
                     case .finished: () // done, nothing to do
                     case let .failure(error): AppModel.shared.appState = .error(msg: error.localizedDescription)
                     }
                 } receiveValue: { items in
-                    self.customCar.trackPositions.append(contentsOf: items)
+                    self.customCar.positionList.append(contentsOf: items)
 
-                    if self.customCar.trackPositions.count > 0 {
+                    if self.customCar.positionList.count > 0 {
                         AppModel.shared.appState = .playing // we start playing after the first lap is loaded, the rest are coming in the background
                     }
 
                     print("*")
                 }
                 .store(in: &self.cancellable)
-        NetworkHelper.shared.fetchCachedFile(for: "carData2_response", with: [Motion].self)
+        fetchPositionData(for: "https://apigw.withoracle.cloud/formulaai/carData/9296252324797135598/1/0")
                 .receive(on: RunLoop.main)
                 .sink { completion in
                     print(completion)
-                    let heights = [self.boxObjectInModel.trackPositions.count, self.customCar.trackPositions.count]
-                    self.boxObjectInModel.frameQuantity = heights.min() ?? self.boxObjectInModel.trackPositions.count
-                    self.customCar.frameQuantity = heights.min() ?? self.customCar.trackPositions.count
+                    let heights = [self.boxObjectInModel.positionList.count, self.customCar.positionList.count]
+                    self.boxObjectInModel.frameQuantity = heights.min() ?? self.boxObjectInModel.positionList.count
+                    self.customCar.frameQuantity = heights.min() ?? self.customCar.positionList.count
 
                     switch completion {
                     case .finished: () // done, nothing to do
                     case let .failure(error): AppModel.shared.appState = .error(msg: error.localizedDescription)
                     }
                 } receiveValue: { items in
-                    self.boxObjectInModel.trackPositions.append(contentsOf: items)
+                    self.boxObjectInModel.positionList.append(contentsOf: items)
 
                     print("*")
                 }
                 .store(in: &self.cancellable)
     }
 
-    private func fetchPositionData(for session: Session) -> AnyPublisher<[Motion], Error> {
+    private func fetchPositionData(for rawUrl: String) -> AnyPublisher<[Motion], Error> {
 //        (1...session.laps)
 //            .map { URL(string: "https://apigw.withoracle.cloud/formulaai/carData/1127492326198450576/1/0")! }
-        URLSession.shared.dataTaskPublisher(for: URL(string: "https://apigw.withoracle.cloud/formulaai/carData/1127492326198450576/1/0")!)
+        URLSession.shared.dataTaskPublisher(for: URL(string: rawUrl)!)
                 //            .flatMap(maxPublishers: .max(1)) { $0 } // we serialize the request because we want the laps in the correct order
                 .map(\.data)
                 .decode(type: LapData.self, decoder: JSONDecoder())
@@ -190,24 +190,7 @@ final class LapDataModel: ObservableObject {
                 .eraseToAnyPublisher()
     }
 
-    private func fetchTrackData(for session: Session) -> AnyPublisher<[Track], Error> {
-//        (1...session.laps)
-//            .map { URL(string: "https://apigw.withoracle.cloud/formulaai/carData/1127492326198450576/1/0")! }
-        URLSession.shared.dataTaskPublisher(for: URL(string: "https://apigw.withoracle.cloud/formulaai/v2/trackData/13315121676340788867/1")!)
-                //            .flatMap(maxPublishers: .max(1)) { $0 } // we serialize the request because we want the laps in the correct order
-                //                .map(\.data)
-                .map({
-                    let stringRepresentation = String(data: $0.data, encoding: .utf8)
-                    print(stringRepresentation!)
-                    return $0.data
-                })
-                .decode(type: [Track].self, decoder: JSONDecoder())
-                //.map { $0.sorted { $0.mFrame < $1.mFrame } }
-                .eraseToAnyPublisher()
-    }
 
-
-    // https://apigw.withoracle.cloud/formulaai/trackData/1127492326198450576/1
 }
 
 
@@ -216,7 +199,7 @@ class ObjectInRace {
     var currentFrame = 0
     var frameQuantity = 0
 
-    var trackPositions: [LocationInModel] = []
+    var positionList: [LocationInModel] = []
     let mainEntity: Entity
     let cameraEntity: PerspectiveCamera?
     let referenceEntity: Entity
@@ -230,14 +213,14 @@ class ObjectInRace {
     }
 
     func reset() {
-        trackPositions = []
+        positionList = []
         currentFrame = 0
     }
 
     func update() {
         guard AppModel.shared.appState == .playing else { return }
 
-        let cp = self.trackPositions[self.currentFrame]
+        let cp = self.positionList[self.currentFrame]
 
         mainEntity.position = SIMD3<Float>([cp.mWorldposy, cp.mWorldposz, cp.mWorldposx] / 1960)
         mainEntity.transform.rotation = Transform(pitch: Float.pi, yaw: 0, roll: 0).rotation
