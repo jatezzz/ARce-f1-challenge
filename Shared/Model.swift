@@ -7,8 +7,6 @@
 
 import Foundation
 
-import Foundation
-
 // MARK: - LapData
 
 typealias LapData = [Motion]
@@ -54,7 +52,7 @@ struct Motion: Codable {
 
 typealias SessionsData = [Session]
 
-struct Session: Codable, Identifiable {
+struct Session: Codable, Identifiable, Hashable {
 
     let id = UUID()
 

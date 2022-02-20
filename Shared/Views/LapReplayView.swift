@@ -13,11 +13,11 @@ struct LapReplayView: View {
     @StateObject var appModel = AppModel.shared
     @StateObject var sessionsModel = SessionsDataModel.shared
 
-    @State var selectionIndex: String = ""
-
     @State var presentingModal = false
     
     @State var session: Session
+
+    @State var compareSession: Session? = nil
 
     var body: some View {
         ZStack {
@@ -54,7 +54,7 @@ struct LapReplayView: View {
                             DataBubbleView()
                                 .frame(alignment: .leading)
                             Spacer()
-                            if !selectionIndex.isEmpty {
+                            if let _ = compareSession {
                                 DataBubbleView()
                                     .frame(alignment: .trailing)
                             }
@@ -77,14 +77,11 @@ struct LapReplayView: View {
                     } label: {
                         Text("Compare")
                     }
-                    .sheet(isPresented: $presentingModal) {
-                        DriversListView(presentedAsModal: self.$presentingModal, session: session)
-                    }
                 } label: {
                     Image(systemName: "ellipsis.circle")
                 }
                 .sheet(isPresented: $presentingModal) {
-                    DriversListView(presentedAsModal: self.$presentingModal, session: session)
+                    DriversListView(presentedAsModal: self.$presentingModal, session: session, selectedSession: $compareSession)
                 }
             }
 

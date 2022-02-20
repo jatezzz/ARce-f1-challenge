@@ -12,13 +12,13 @@ struct DriversListView: View {
     @StateObject var sessionsModel = SessionsDataModel.shared
 
     @Binding var presentedAsModal: Bool
-    
     @State var session: Session
+    @Binding var selectedSession: Session?
 
     var body: some View {
         VStack {
 
-            List(sessionsModel.sessions.filter { $0.trackId == session.trackId }) { session in
+            List(sessionsModel.sessions.filter { $0.trackId == session.trackId }, id: \.self, selection: $selectedSession) { session in
                 HStack {
                     Image("driver-placeholder")
                         .resizable()
@@ -33,8 +33,10 @@ struct DriversListView: View {
                         Text(session.mSessionid)
                             .font(.subheadline)
                     }
+
                 }
             }
+            .environment(\.editMode, .constant(.active))
         }
         Button("dismiss") { self.presentedAsModal = false }
     }
