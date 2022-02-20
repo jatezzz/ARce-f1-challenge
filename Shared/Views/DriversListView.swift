@@ -20,50 +20,49 @@ struct DriversListView: View {
         VStack {
             #if os(macOS)
             List(sessionsModel.sessions.filter { $0.trackId == session.trackId }, id: \.self, selection: $selectedSession) { session in
-                HStack {
-                    Image("driver-placeholder")
-                            .resizable()
-                            .scaledToFit()
-                            .padding()
-                            .background(Color.gray)
-                            .clipShape(Circle())
-                            .frame(width: 60, height: 60)
-
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text(session.driver)
-                        Text(session.mSessionid)
-                            .font(.subheadline)
-                    }
-
-                }
+                SessionRow(session: session)
                         .onTapGesture {
-                            self.presentedAsModal = false
-                            dataModel.addSession(session: session)
+                            dismissAndSeletSession()
                         }
             }
             #else
             List(sessionsModel.sessions.filter { $0.trackId == session.trackId }, id: \.self, selection: $selectedSession) { session in
-                HStack {
-                    Image("driver-placeholder")
-                            .resizable()
-                            .scaledToFit()
-                            .padding()
-                            .background(Color.gray)
-                            .clipShape(Circle())
-                            .frame(width: 60, height: 60)
-
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text(session.driver)
-                        Text(session.mSessionid)
-                                .font(.subheadline)
-                    }
-
-                }
+                SessionRow(session: session)
+                        .onTapGesture {
+                            dismissAndSeletSession()
+                        }
             }
                     .environment(\.editMode, .constant(.active))
             #endif
         }
         Button("dismiss") { self.presentedAsModal = false }
+    }
+
+    private func dismissAndSeletSession() {
+        self.presentedAsModal = false
+        dataModel.addSession(session: session)
+    }
+}
+
+struct SessionRow: View {
+    var session: Session
+    var body: some View {
+        HStack {
+            Image("driver-placeholder")
+                    .resizable()
+                    .scaledToFit()
+                    .padding()
+                    .background(Color.gray)
+                    .clipShape(Circle())
+                    .frame(width: 60, height: 60)
+
+            VStack(alignment: .leading, spacing: 5) {
+                Text(session.driver)
+                Text(session.mSessionid)
+                        .font(.subheadline)
+            }
+
+        }
     }
 }
 

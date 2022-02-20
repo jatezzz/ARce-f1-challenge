@@ -57,8 +57,8 @@ final class LapDataModel: ObservableObject {
 
 
         // • The camera
-        #if os(macOS)
         let cameraEntity = PerspectiveCamera()
+        #if os(macOS)
         cameraEntity.camera.fieldOfViewInDegrees = 60
         let cameraAnchor = AnchorEntity(world: .zero)
 
@@ -190,7 +190,7 @@ class ObjectInRace {
     var currentFrame = 0
     var frameQuantity = 0
 
-    var positionList: [LocationInModel] = []
+    var positionList: [Motion] = []
     let mainEntity: Entity
     let cameraEntity: PerspectiveCamera?
     let referenceEntity: Entity
@@ -214,7 +214,7 @@ class ObjectInRace {
         let cp = self.positionList[self.currentFrame]
 
         mainEntity.position = SIMD3<Float>([cp.mWorldposy, cp.mWorldposz, cp.mWorldposx] / 1960)
-        mainEntity.transform.rotation = Transform(pitch: Float.pi, yaw: 0, roll: 0).rotation
+        mainEntity.transform.rotation = Transform(pitch: cp.mPitch, yaw: cp.mYaw, roll: cp.mRoll).rotation
 
         // converting the API coordinates to match the visible track
         mainEntity.transform = referenceEntityTransform.convert(transform: mainEntity.transform, to: referenceEntity)
