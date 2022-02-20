@@ -75,8 +75,11 @@ final class LapDataModel: ObservableObject {
         myCar.transform.scale = [1, 1, 1] * 0.0008
 
         // • Reference car
+        let trackingCone2 = trackingCone.clone(recursive: true)
         let fastestCar = myCar.clone(recursive: true)
+        fastestCar.addChild(trackingCone2)
         carScene.addChild(fastestCar)
+        myCar.addChild(trackingCone)
 
         // Initially position the camera
         #if os(macOS)

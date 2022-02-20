@@ -16,9 +16,16 @@ class ObjectInRace {
     let cameraEntity: PerspectiveCamera?
     let referenceEntity: Entity
     let referenceEntityTransform: Entity
+    let coneEntity: Entity?
 
     init(entity: Entity, camera: PerspectiveCamera?, referenceEntityTransform: Entity, referenceEntity: Entity) {
         mainEntity = entity
+        coneEntity = mainEntity.children.first(where: {
+            $0.name == "Tracking Cone"
+        })
+        coneEntity?.transform.scale = [1, 1, 1] * 200
+        coneEntity?.setPosition(SIMD3<Float>([0, 50, 0]), relativeTo: mainEntity)
+
         self.cameraEntity = camera
         self.referenceEntityTransform = referenceEntityTransform
         self.referenceEntity = referenceEntity
@@ -30,7 +37,7 @@ class ObjectInRace {
     }
 
     func update() {
-        guard AppModel.shared.appState == .playing, !self.positionList.isEmpty else { return }
+        guard AppModel.shared.appState == .playing, !self.positionList.isEmpty, let coneEntity = coneEntity else { return }
 
         let cp = self.positionList[self.currentFrame]
 
