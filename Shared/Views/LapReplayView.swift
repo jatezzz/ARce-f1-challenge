@@ -132,10 +132,38 @@ struct LapReplayView: View {
 
                 Spacer()
 
-                Button {
+                Menu {
+                    Button {
 
+                    } label: {
+                        Label("Zoom In", systemImage: "plus.magnifyingglass")
+                    }
+
+                    Button {
+
+                    } label: {
+                        Label("Zoom Out", systemImage: "minus.magnifyingglass")
+                    }
+
+                    Button {
+
+                    } label: {
+                        Label("Rotate", systemImage: "rotate.3d")
+                    }
+
+                    Button {
+
+                    } label: {
+                        Label("Record", systemImage: "record.circle")
+                    }
+
+                    Button {
+
+                    } label: {
+                        Label("Measure", systemImage: "ruler")
+                    }
                 } label: {
-                    Image(systemName: "info.circle")
+                    Image(systemName: "gear")
                 }
 
             }
