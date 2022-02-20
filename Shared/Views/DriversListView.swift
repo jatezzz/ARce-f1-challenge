@@ -36,7 +36,7 @@ struct DriversListView: View {
 
                 }
             }
-            .environment(\.editMode, .constant(.active))
+//            .environment(\.editMode, .constant(.active))
         }
         Button("dismiss") { self.presentedAsModal = false }
     }

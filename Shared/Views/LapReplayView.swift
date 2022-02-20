@@ -85,32 +85,32 @@ struct LapReplayView: View {
                 }
             }
 
-            ToolbarItemGroup(placement: .bottomBar) {
-                let playing = appModel.appState == .playing
-
-                Button(action: {
-
-                }, label: {
-                    Image(systemName: "heart")
-                })
-
-                Spacer()
-
-                Button(action: {
-                    appModel.appState = playing ? .stopped : .playing
-                }, label: {
-                    Image(systemName: playing ? "pause" : "play")
-                })
-
-                Spacer()
-
-                Button {
-                    
-                } label: {
-                    Image(systemName: "info.circle")
-                }
-
-            }
+//            ToolbarItemGroup(placement: .bottomBar) {
+//                let playing = appModel.appState == .playing
+//
+//                Button(action: {
+//
+//                }, label: {
+//                    Image(systemName: "heart")
+//                })
+//
+//                Spacer()
+//
+//                Button(action: {
+//                    appModel.appState = playing ? .stopped : .playing
+//                }, label: {
+//                    Image(systemName: playing ? "pause" : "play")
+//                })
+//
+//                Spacer()
+//
+//                Button {
+//
+//                } label: {
+//                    Image(systemName: "info.circle")
+//                }
+//
+//            }
         }
     }
 }
