@@ -11,11 +11,18 @@ import SwiftUI
 struct DataBubbleView: View {
     
     let currentData: ParticipantViewData
-    
+
+    @Binding var presentingEngineInfo: Bool
+    @Binding var presentingLapInfo: Bool
+
     var body: some View {
         VStack {
-            renderTopBubble()
-            renderBottomBubble()
+            if presentingEngineInfo {
+                renderTopBubble()
+            }
+            if presentingLapInfo {
+                renderBottomBubble()
+            }
         }
         .font(.system(size: 18, design: .monospaced))
         .foregroundColor(.white)
@@ -56,11 +63,19 @@ struct DataBubbleView: View {
         }
         .frame(width: 180)
         .padding()
-        .background(Color
-                        .red
-                        .cornerRadius(10)
-                        .opacity(0.8)
+        .background(
+            LinearGradient(
+                gradient:
+                    Gradient(
+                        colors: [
+                            Color(red: 199/255, green: 64/255, blue: 64/255),
+                            Color(red: 207/255, green: 122/255, blue: 122/255)
+                        ]
+                    ),
+                startPoint: .top, endPoint: .bottom
+            ).opacity(0.7)
         )
+        .cornerRadius(10)
     }
     
     @ViewBuilder
@@ -72,33 +87,43 @@ struct DataBubbleView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 5) {
                 Text("Lap")
-                    .frame(width: titleColWidth, alignment: .trailing)
-                Text("\(currentData.currentLap)")
+                    .frame(width: titleColWidth, alignment: .leading)
+                Text("\(dataModel.currentLap)")
                     .fontWeight(.bold)
                     .frame(width: valueColWidth, alignment: .trailing)
             }
             HStack(spacing: 5) {
                 Text("Sector")
-                    .frame(width: titleColWidth, alignment: .trailing)
-                Text("\(currentData.currentSector + 1)")
+                    .frame(width: titleColWidth, alignment: .leading)
+                Text("\(dataModel.currentSector + 1)")
                     .fontWeight(.bold)
                     .frame(width: valueColWidth, alignment: .trailing)
             }
         }
         .frame(width: 180)
         .padding()
-        .background(Color
-                        .green
-                        .cornerRadius(10)
-                        .opacity(0.8)
+        .background(
+            LinearGradient(
+                gradient:
+                    Gradient(
+                        colors: [
+                            Color(red: 51/255, green: 206/255, blue: 51/255),
+                            Color(red: 120/255, green: 206/255, blue: 120/255)
+                        ]
+                    ),
+                startPoint: .top, endPoint: .bottom
+            ).opacity(0.7)
         )
+        .cornerRadius(10)
     }
     
 
 }
 
-struct DataBubble_Previews: PreviewProvider {
-    static var previews: some View {
-        DataBubbleView(currentData: ParticipantViewData())
-    }
-}
+//struct DataBubble_Previews: PreviewProvider {
+//    @State var presentingEngineInfo = true
+//    @State var presentingLapInfo = false
+//    static var previews: some View {
+//        DataBubbleView(presentingEngineInfo: $presentingEngineInfo, presentingLapInfo: $presentingLapInfo)
+//    }
+//}
