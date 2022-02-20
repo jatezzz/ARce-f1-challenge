@@ -19,12 +19,17 @@ struct DriversListView: View {
     var body: some View {
         VStack {
             #if os(macOS)
+            Text("Select a session to compare:")
+                .font(.title3.bold())
+                .frame(alignment: .leading)
+                .padding()
+
             List(sessionsModel.sessions.filter { $0.trackId == session.trackId }, id: \.self, selection: $selectedSession) { session in
                 SessionRow(session: session)
                         .onTapGesture {
                             dismissAndSeletSession()
                         }
-            }
+            }.environment(\.editMode, .constant(.active))
             #else
             List(sessionsModel.sessions.filter { $0.trackId == session.trackId }, id: \.self, selection: $selectedSession) { session in
                 SessionRow(session: session)
@@ -34,8 +39,12 @@ struct DriversListView: View {
             }
                     .environment(\.editMode, .constant(.active))
             #endif
+            
+            Button("Return") { self.presentedAsModal = false }
+            .font(.body.bold())
+            .padding()
         }
-        Button("dismiss") { self.presentedAsModal = false }
+
     }
 
     private func dismissAndSeletSession() {

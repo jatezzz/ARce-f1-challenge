@@ -19,6 +19,9 @@ struct LapReplayView: View {
 
     @State var compareSession: Session? = nil
 
+    @State var presentingEngineInfo = true
+    @State var presentingLapInfo = false
+
     var body: some View {
         ZStack {
             ARViewContainer()
@@ -72,10 +75,35 @@ struct LapReplayView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
-                    Button {
-                        presentingModal = true
-                    } label: {
-                        Text("Compare")
+
+                    Section {
+                        Button {
+                            presentingModal = true
+                        } label: {
+                            Text("Compare")
+                        }
+
+                        if let _ = compareSession {
+                            Button(role: .destructive) {
+                                compareSession = nil
+                            } label: {
+                                Label("Stop comparing", systemImage: "xmark")
+                            }
+                        }
+                    }
+
+                    Section {
+                        Button{
+                            presentingEngineInfo = !presentingEngineInfo
+                        } label: {
+                            Label("Engine", systemImage: presentingEngineInfo ? "checkmark.circle" : "circle")
+                        }
+
+                        Button{
+                            presentingLapInfo = !presentingLapInfo
+                        } label: {
+                            Label("Track", systemImage: presentingLapInfo ? "checkmark.circle" : "circle")
+                        }
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
