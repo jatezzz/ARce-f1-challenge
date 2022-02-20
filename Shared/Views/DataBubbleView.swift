@@ -10,7 +10,7 @@ import SwiftUI
 
 struct DataBubbleView: View {
     
-    @StateObject var dataModel = LapDataModel.shared
+    let currentData: ParticipantViewData
     
     var body: some View {
         VStack {
@@ -32,7 +32,7 @@ struct DataBubbleView: View {
             HStack(spacing: 5) {
                 Image(systemName: "hare")
                     .frame(width: iconColWidth, alignment: .center)
-                Text("\(dataModel.currentSpeed)")
+                Text("\(currentData.currentSpeed)")
                     .fontWeight(.bold)
                     .frame(width: valueColWidth, alignment: .trailing)
                 Text("km/h").fontWeight(.ultraLight)
@@ -40,7 +40,7 @@ struct DataBubbleView: View {
             HStack(spacing: 5) {
                 Image(systemName: "speedometer")
                     .frame(width: iconColWidth, alignment: .center)
-                Text("\(dataModel.currentRPM)")
+                Text("\(currentData.currentRPM)")
                     .fontWeight(.bold)
                     .frame(width: valueColWidth, alignment: .trailing)
                 Text("rpm").fontWeight(.ultraLight)
@@ -48,7 +48,7 @@ struct DataBubbleView: View {
             HStack(spacing: 5) {
                 Image(systemName: "gear")
                     .frame(width: iconColWidth, alignment: .center)
-                Text("\(dataModel.currentGear)")
+                Text("\(currentData.currentGear)")
                     .fontWeight(.bold)
                     .frame(width: valueColWidth, alignment: .trailing)
             }
@@ -73,14 +73,14 @@ struct DataBubbleView: View {
             HStack(spacing: 5) {
                 Text("Lap")
                     .frame(width: titleColWidth, alignment: .trailing)
-                Text("\(dataModel.currentLap)")
+                Text("\(currentData.currentLap)")
                     .fontWeight(.bold)
                     .frame(width: valueColWidth, alignment: .trailing)
             }
             HStack(spacing: 5) {
                 Text("Sector")
                     .frame(width: titleColWidth, alignment: .trailing)
-                Text("\(dataModel.currentSector + 1)")
+                Text("\(currentData.currentSector + 1)")
                     .fontWeight(.bold)
                     .frame(width: valueColWidth, alignment: .trailing)
             }
@@ -99,6 +99,6 @@ struct DataBubbleView: View {
 
 struct DataBubble_Previews: PreviewProvider {
     static var previews: some View {
-        DataBubbleView()
+        DataBubbleView(currentData: ParticipantViewData())
     }
 }

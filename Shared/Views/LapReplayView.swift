@@ -54,11 +54,11 @@ struct LapReplayView: View {
                     Spacer()
                     ZStack {
                         HStack(alignment: .bottom) {
-                            DataBubbleView()
+                            DataBubbleView(currentData: dataModel.mainParticipant)
                                 .frame(alignment: .leading)
                             Spacer()
                             if let _ = compareSession {
-                                DataBubbleView()
+                                DataBubbleView(currentData: dataModel.secondarticipant)
                                     .frame(alignment: .trailing)
                             }
                         }
@@ -84,11 +84,19 @@ struct LapReplayView: View {
                         }
 
                         if let _ = compareSession {
+                            #if !os(macOS)
                             Button(role: .destructive) {
                                 compareSession = nil
                             } label: {
                                 Label("Stop comparing", systemImage: "xmark")
                             }
+                            #else
+                            Button(action: {
+                                compareSession = nil
+                            }, label: {
+                                Label("Stop comparing", systemImage: "xmark")
+                            })
+                            #endif
                         }
                     }
 
@@ -112,7 +120,7 @@ struct LapReplayView: View {
                     DriversListView(presentedAsModal: self.$presentingModal, session: session, selectedSession: $compareSession)
                 }
             }
-#if !os(macOS)
+            #if !os(macOS)
             ToolbarItemGroup(placement: .bottomBar) {
                 let playing = appModel.appState == .playing
 

@@ -16,11 +16,8 @@ final class LapDataModel: ObservableObject {
 
     @Published var arView: ARView!
 
-    @Published var currentSpeed: Int = 0
-    @Published var currentRPM: Int = 0
-    @Published var currentGear: Int = 0
-    @Published var currentSector: Int = 0
-    @Published var currentLap: Int = 0
+    @Published var mainParticipant: ParticipantViewData = ParticipantViewData()
+    @Published var secondarticipant: ParticipantViewData = ParticipantViewData()
 
     let mainCar: ObjectInRace
     let secondCar: ObjectInRace
@@ -99,7 +96,18 @@ final class LapDataModel: ObservableObject {
         arView.scene.addAnchor(cameraAnchor)
         #endif
         sceneEventsUpdateSubscription = arView.scene.subscribe(to: SceneEvents.Update.self) { [weak self] _ in
-            self?.objects.forEach({ $0.update() })
+            guard let self = self else {
+                return
+            }
+            self.objects.indices.forEach({
+                let viewData = self.objects[$0].update()
+                if let viewData = viewData, $0 == 0 {
+                    self.mainParticipant = viewData
+                }
+                if let viewData = viewData, $0 == 1 {
+                    self.secondarticipant = viewData
+                }
+            })
         }
     }
 

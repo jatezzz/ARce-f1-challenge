@@ -36,11 +36,10 @@ class ObjectInRace {
         currentFrame = 0
     }
 
-    func update() {
-        guard AppModel.shared.appState == .playing, !self.positionList.isEmpty, let coneEntity = coneEntity else { return }
+    func update() -> ParticipantViewData? {
+        guard AppModel.shared.appState == .playing, !self.positionList.isEmpty, let coneEntity = coneEntity else { return nil }
 
         let cp = self.positionList[self.currentFrame]
-
         mainEntity.position = SIMD3<Float>([cp.mWorldposy, cp.mWorldposz, cp.mWorldposx] / 1960)
         mainEntity.transform.rotation = Transform(pitch: cp.mPitch, yaw: cp.mYaw, roll: cp.mRoll).rotation
 
@@ -51,5 +50,14 @@ class ObjectInRace {
         cameraEntity?.look(at: mainEntity.position, from: [0.1, 0.1, 0], relativeTo: nil)
         #endif
         self.currentFrame = (self.currentFrame < self.frameQuantity - 1) ? (self.currentFrame + 1) : 0
+        return ParticipantViewData(currentSpeed: cp.mSpeed, currentRPM: cp.mEngineRPM, currentGear: cp.mGear, currentSector: cp.mSector, currentLap: cp.mCurrentLap)
     }
+}
+
+struct ParticipantViewData {
+    var currentSpeed: Int = 0
+    var currentRPM: Int = 0
+    var currentGear: Int = 0
+    var currentSector: Int = 0
+    var currentLap: Int = 0
 }
