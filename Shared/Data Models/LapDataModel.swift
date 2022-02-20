@@ -133,6 +133,11 @@ final class LapDataModel: ObservableObject {
         AppModel.shared.appState = .loadingTrack
         self.cancellable = []
         customCar.reset()
+        
+        let box2 = createBox()
+        placeBox(box: box2, at: SIMD3(x: 0, y: 0, z: 0))
+        installGestures(on: box2)
+ 
         NetworkHelper.shared.fetchPositionData(for: session)
                 .receive(on: RunLoop.main)
                 .sink { completion in
@@ -182,6 +187,22 @@ final class LapDataModel: ObservableObject {
                 }
                 .store(in: &self.cancellable)
     }
+    
+        func createBox() -> ModelEntity{
+            let box = MeshResource.generateBox(size: 0.08) // Generate mesh
+            let boxMaterial = SimpleMaterial(color: .blue, isMetallic: true)
+            let boxEntity = ModelEntity(mesh: box, materials: [boxMaterial])
+            return boxEntity
+        }
+        func placeBox(box:ModelEntity,at position: SIMD3<Float>){
+            let boxAnchor = AnchorEntity(world: position)
+            boxAnchor.addChild(box)
+            arView.scene.addAnchor(boxAnchor)
+        }
+        func installGestures(on object: ModelEntity){
+            object.generateCollisionShapes(recursive: true)
+            arView.installGestures([.rotation,.scale], for: object)
+        }
 }
 
 

@@ -71,6 +71,7 @@ struct LapReplayView: View {
         }
         .onAppear {
             dataModel.load(session: session)
+                
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
