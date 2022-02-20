@@ -22,8 +22,8 @@ final class LapDataModel: ObservableObject {
     @Published var currentSector: Int = 0
     @Published var currentLap: Int = 0
 
-    let customCar: ObjectInRace
-    let boxObjectInModel: ObjectInRace
+    let mainCar: ObjectInRace
+    let secondCar: ObjectInRace
     private var fastestLapPositions: [Motion] = []
 
 
@@ -31,6 +31,8 @@ final class LapDataModel: ObservableObject {
     private var carAnchor: AnchorEntity?
 
     private var cancellable = Set<AnyCancellable>()
+
+    var objects: [ObjectInRace] = []
 
     init() {
         // load the fastest lap
@@ -70,19 +72,14 @@ final class LapDataModel: ObservableObject {
         let myCar = carScene.car!
         let trackingCone = carScene.trackingCone!
 
-
-        //Box
-        let box = MeshResource.generateBox(size: 0.005) // Generate mesh
-        let boxMaterial = SimpleMaterial(color: .green, isMetallic: true)
-        let boxEntity = ModelEntity(mesh: box, materials: [boxMaterial])
-
-        carScene.addChild(boxEntity)
-
-
         myCar.transform.scale = [1, 1, 1] * 0.0008
 
         // • Reference car
+        let trackingCone2 = trackingCone.clone(recursive: true)
         let fastestCar = myCar.clone(recursive: true)
+        fastestCar.addChild(trackingCone2)
+        carScene.addChild(fastestCar)
+        myCar.addChild(trackingCone)
 
         // Initially position the camera
         #if os(macOS)
@@ -90,8 +87,8 @@ final class LapDataModel: ObservableObject {
         #endif
 
         // Run the car
-        customCar = ObjectInRace(entity: myCar, camera: cameraEntity, referenceEntityTransform: myTrackTransformed, referenceEntity: myTrack)
-        boxObjectInModel = ObjectInRace(entity: boxEntity, camera: nil, referenceEntityTransform: myTrackTransformed, referenceEntity: myTrack)
+        mainCar = ObjectInRace(entity: myCar, camera: cameraEntity, referenceEntityTransform: myTrackTransformed, referenceEntity: myTrack)
+        secondCar = ObjectInRace(entity: fastestCar, camera: nil, referenceEntityTransform: myTrackTransformed, referenceEntity: myTrack)
 
         #if !targetEnvironment(simulator) && !os(macOS)
         arView.addCoaching()
@@ -101,80 +98,38 @@ final class LapDataModel: ObservableObject {
         #if os(macOS)
         arView.scene.addAnchor(cameraAnchor)
         #endif
-        sceneEventsUpdateSubscription = arView.scene.subscribe(to: SceneEvents.Update.self) { _ in
-            self.customCar.update()
-            self.boxObjectInModel.update()
+        sceneEventsUpdateSubscription = arView.scene.subscribe(to: SceneEvents.Update.self) { [weak self] _ in
+            self?.objects.forEach({ $0.update() })
         }
     }
 
-    private func loadFastestLap() {
-        self.fastestLapPositions = []
-
-        URLSession.shared
-                .dataTaskPublisher(for: URL(string: "https://apigw.withoracle.cloud/livelaps/carData/fastestlap")!)
-                .map(\.data)
-                .decode(type: LapData.self, decoder: JSONDecoder())
-                .receive(on: RunLoop.main)
-                .sink { completion in
-                    print(completion)
-
-                    switch completion {
-                    case .finished: () // done, nothing to do
-                    case let .failure(error): AppModel.shared.appState = .error(msg: error.localizedDescription)
-                    }
-                } receiveValue: { items in
-                    self.fastestLapPositions.append(contentsOf: items)
-                    print("*-")
-                }
-                .store(in: &self.cancellable)
-    }
-
     func load(session: Session) {
-        AppModel.shared.appState = .loadingTrack
-        self.cancellable = []
-        customCar.reset()
-        NetworkHelper.shared.fetchPositionData(for: session)
-                .receive(on: RunLoop.main)
-                .sink { completion in
-                    print(completion)
-                    self.customCar.frameQuantity = self.customCar.positionList.count
-
-                    switch completion {
-                    case .finished: () // done, nothing to do
-                    case let .failure(error): AppModel.shared.appState = .error(msg: error.localizedDescription)
-                    }
-                } receiveValue: { items in
-                    self.customCar.positionList.append(contentsOf: items)
-
-                    if self.customCar.positionList.count > 0 {
-                        AppModel.shared.appState = .playing // we start playing after the first lap is loaded, the rest are coming in the background
-                    }
-
-                    print("*")
-                }
-                .store(in: &self.cancellable)
+        objects.removeAll()
+        loadSessionIntoModel(session: session, model: mainCar)
     }
 
     func addSession(session: Session) {
+        loadSessionIntoModel(session: session, model: secondCar)
+    }
+
+    private func loadSessionIntoModel(session: Session, model: ObjectInRace) {
         AppModel.shared.appState = .loadingTrack
         self.cancellable = []
-        boxObjectInModel.reset()
+        model.reset()
         NetworkHelper.shared.fetchPositionData(for: session)
                 .receive(on: RunLoop.main)
                 .sink { completion in
                     print(completion)
-                    let heights = [self.boxObjectInModel.positionList.count, self.customCar.positionList.count]
-                    self.boxObjectInModel.frameQuantity = heights.min() ?? self.boxObjectInModel.positionList.count
-                    self.customCar.frameQuantity = heights.min() ?? self.customCar.positionList.count
+                    self.addModelToQueueAndSetupContainerProperties(model: model)
 
                     switch completion {
                     case .finished: () // done, nothing to do
                     case let .failure(error): AppModel.shared.appState = .error(msg: error.localizedDescription)
                     }
                 } receiveValue: { items in
-                    self.boxObjectInModel.positionList.append(contentsOf: items)
+                    model.positionList.append(contentsOf: items)
 
-                    if self.boxObjectInModel.positionList.count > 0 {
+                    if model.positionList.count > 0 {
                         AppModel.shared.appState = .playing // we start playing after the first lap is loaded, the rest are coming in the background
                     }
 
@@ -182,46 +137,19 @@ final class LapDataModel: ObservableObject {
                 }
                 .store(in: &self.cancellable)
     }
-}
 
-
-class ObjectInRace {
-
-    var currentFrame = 0
-    var frameQuantity = 0
-
-    var positionList: [Motion] = []
-    let mainEntity: Entity
-    let cameraEntity: PerspectiveCamera?
-    let referenceEntity: Entity
-    let referenceEntityTransform: Entity
-
-    init(entity: Entity, camera: PerspectiveCamera?, referenceEntityTransform: Entity, referenceEntity: Entity) {
-        mainEntity = entity
-        self.cameraEntity = camera
-        self.referenceEntityTransform = referenceEntityTransform
-        self.referenceEntity = referenceEntity
-    }
-
-    func reset() {
-        positionList = []
-        currentFrame = 0
-    }
-
-    func update() {
-        guard AppModel.shared.appState == .playing, !self.positionList.isEmpty else { return }
-
-        let cp = self.positionList[self.currentFrame]
-
-        mainEntity.position = SIMD3<Float>([cp.mWorldposy, cp.mWorldposz, cp.mWorldposx] / 1960)
-        mainEntity.transform.rotation = Transform(pitch: cp.mPitch, yaw: cp.mYaw, roll: cp.mRoll).rotation
-
-        // converting the API coordinates to match the visible track
-        mainEntity.transform = referenceEntityTransform.convert(transform: mainEntity.transform, to: referenceEntity)
-
-        #if os(macOS)
-        cameraEntity?.look(at: mainEntity.position, from: [0.1, 0.1, 0], relativeTo: nil)
-        #endif
-        self.currentFrame = (self.currentFrame < self.frameQuantity - 1) ? (self.currentFrame + 1) : 0
+    private func addModelToQueueAndSetupContainerProperties(model: ObjectInRace) {
+        if objects.count >= 2 {
+            objects.removeLast()
+        }
+        objects.append(model)
+        let minQuantity = objects.map({ $0.positionList.count })
+                .filter({ $0 > 0 })
+                .min() ?? 0
+        objects.forEach({ model in
+            model.currentFrame = 0
+            model.frameQuantity = minQuantity
+        })
     }
 }
+

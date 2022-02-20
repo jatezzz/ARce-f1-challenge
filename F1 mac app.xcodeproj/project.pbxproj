@@ -36,7 +36,9 @@
 		625964AB27C1A236003770C1 /* DriversListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 625964A927C1A236003770C1 /* DriversListView.swift */; };
 		936D00663D090BF977915344 /* carData3_response.json in Resources */ = {isa = PBXBuildFile; fileRef = 936D0B4B8A9589D69CFFB46C /* carData3_response.json */; };
 		936D006F4BCABCB5D5DD2125 /* NetworkHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 936D047256AF150D0C784681 /* NetworkHelper.swift */; };
+		936D012EC690AA23B904E8FA /* ObjectInRace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 936D047DB3C4C9920D3F7FF9 /* ObjectInRace.swift */; };
 		936D02F20758C8E5BBD5F790 /* carData3_response.json in Resources */ = {isa = PBXBuildFile; fileRef = 936D0B4B8A9589D69CFFB46C /* carData3_response.json */; };
+		936D054A70BC13591D8822AE /* ObjectInRace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 936D047DB3C4C9920D3F7FF9 /* ObjectInRace.swift */; };
 		936D07B41D809E97AC592F8C /* NetworkHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 936D047256AF150D0C784681 /* NetworkHelper.swift */; };
 		A287686927C2909A00A8D52A /* track_response.json in Resources */ = {isa = PBXBuildFile; fileRef = A287686827C2909A00A8D52A /* track_response.json */; };
 		A287686A27C290A200A8D52A /* track_response.json in Resources */ = {isa = PBXBuildFile; fileRef = A287686827C2909A00A8D52A /* track_response.json */; };
@@ -73,6 +75,7 @@
 		02FDDC6B2719A9E800E3587F /* 1960Final.usdc */ = {isa = PBXFileReference; lastKnownFileType = file; path = 1960Final.usdc; sourceTree = "<group>"; };
 		625964A927C1A236003770C1 /* DriversListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriversListView.swift; sourceTree = "<group>"; };
 		936D047256AF150D0C784681 /* NetworkHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkHelper.swift; sourceTree = "<group>"; };
+		936D047DB3C4C9920D3F7FF9 /* ObjectInRace.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectInRace.swift; sourceTree = "<group>"; };
 		936D0B4B8A9589D69CFFB46C /* carData3_response.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = carData3_response.json; sourceTree = "<group>"; };
 		A287686827C2909A00A8D52A /* track_response.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = track_response.json; path = Shared/track_response.json; sourceTree = "<group>"; };
 		A287686B27C2929800A8D52A /* sessions_response.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = sessions_response.json; path = Shared/sessions_response.json; sourceTree = "<group>"; };
@@ -129,6 +132,7 @@
 				02FDCA4E26DF8822002E6C28 /* LapDataModel.swift */,
 				021E2C0D26FCB7CF00D76B0E /* SessionsDataModel.swift */,
 				936D047256AF150D0C784681 /* NetworkHelper.swift */,
+				936D047DB3C4C9920D3F7FF9 /* ObjectInRace.swift */,
 			);
 			path = "Data Models";
 			sourceTree = "<group>";
@@ -330,6 +334,7 @@
 				021E2C0F26FCB7CF00D76B0E /* SessionsDataModel.swift in Sources */,
 				027BC28626FDF15700751081 /* LapReplayView.swift in Sources */,
 				936D006F4BCABCB5D5DD2125 /* NetworkHelper.swift in Sources */,
+				936D012EC690AA23B904E8FA /* ObjectInRace.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -349,6 +354,7 @@
 				02FDCA4F26DF8822002E6C28 /* LapDataModel.swift in Sources */,
 				021E2C0E26FCB7CF00D76B0E /* SessionsDataModel.swift in Sources */,
 				936D07B41D809E97AC592F8C /* NetworkHelper.swift in Sources */,
+				936D054A70BC13591D8822AE /* ObjectInRace.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
