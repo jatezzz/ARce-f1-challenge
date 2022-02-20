@@ -20,7 +20,7 @@ struct LapReplayView: View {
     @State var compareSession: Session? = nil
 
     @State var presentingEngineInfo = true
-    @State var presentingLapInfo = false
+    @State var presentingLapInfo = true
 
     var body: some View {
         ZStack {
@@ -54,11 +54,11 @@ struct LapReplayView: View {
                     Spacer()
                     ZStack {
                         HStack(alignment: .bottom) {
-                            DataBubbleView()
+                            DataBubbleView(presentingEngineInfo: $presentingEngineInfo, presentingLapInfo: $presentingLapInfo)
                                 .frame(alignment: .leading)
                             Spacer()
                             if let _ = compareSession {
-                                DataBubbleView()
+                                DataBubbleView(presentingEngineInfo: $presentingEngineInfo, presentingLapInfo: $presentingLapInfo)
                                     .frame(alignment: .trailing)
                             }
                         }
