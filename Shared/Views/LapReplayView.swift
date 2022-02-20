@@ -14,8 +14,10 @@ struct LapReplayView: View {
     @StateObject var sessionsModel = SessionsDataModel.shared
 
     @State var selectionIndex: String = ""
+
+    @State var presentingModal = false
     
-    var session: Session
+    @State var session: Session
 
     var body: some View {
         ZStack {
@@ -70,14 +72,19 @@ struct LapReplayView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
-                    Picker("Sort by", selection: $selectionIndex) {
-                        ForEach(sessionsModel.sessions.filter { $0.trackId == session.trackId }, id: \.mSessionid) { session in
-                            Text("\(session.driver) - \(session.mSessionid)").tag(session.mSessionid)
-                        }
-                        Text("Deselect").tag("")
+                    Button {
+                        presentingModal = true
+                    } label: {
+                        Text("Compare")
+                    }
+                    .sheet(isPresented: $presentingModal) {
+                        DriversListView(presentedAsModal: self.$presentingModal, session: session)
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
+                }
+                .sheet(isPresented: $presentingModal) {
+                    DriversListView(presentedAsModal: self.$presentingModal, session: session)
                 }
             }
 
@@ -100,11 +107,12 @@ struct LapReplayView: View {
 
                 Spacer()
 
-                Button(action: {
-
-                }, label: {
+                Button {
+                    
+                } label: {
                     Image(systemName: "info.circle")
-                })
+                }
+
             }
         }
     }

@@ -54,7 +54,9 @@ struct Motion: Codable {
 
 typealias SessionsData = [Session]
 
-struct Session: Codable {
+struct Session: Codable, Identifiable {
+
+    let id = UUID()
 
     let mSessionid: String
     let mGamehost: String

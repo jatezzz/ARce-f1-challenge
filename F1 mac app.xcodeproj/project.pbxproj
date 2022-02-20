@@ -32,6 +32,8 @@
 		02FDCA4F26DF8822002E6C28 /* LapDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02FDCA4E26DF8822002E6C28 /* LapDataModel.swift */; };
 		02FDDC6C2719A9E800E3587F /* 1960Final.usdc in Resources */ = {isa = PBXBuildFile; fileRef = 02FDDC6B2719A9E800E3587F /* 1960Final.usdc */; };
 		02FDDC6D2719A9E800E3587F /* 1960Final.usdc in Resources */ = {isa = PBXBuildFile; fileRef = 02FDDC6B2719A9E800E3587F /* 1960Final.usdc */; };
+		625964AA27C1A236003770C1 /* DriversListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 625964A927C1A236003770C1 /* DriversListView.swift */; };
+		625964AB27C1A236003770C1 /* DriversListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 625964A927C1A236003770C1 /* DriversListView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,6 +57,7 @@
 		02FDCA4726DF87BF002E6C28 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		02FDCA4E26DF8822002E6C28 /* LapDataModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LapDataModel.swift; sourceTree = "<group>"; };
 		02FDDC6B2719A9E800E3587F /* 1960Final.usdc */ = {isa = PBXFileReference; lastKnownFileType = file; path = 1960Final.usdc; sourceTree = "<group>"; };
+		625964A927C1A236003770C1 /* DriversListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriversListView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +95,7 @@
 				021E2C1026FCBE1500D76B0E /* MainView.swift */,
 				02FDCA4226DF87BD002E6C28 /* LapReplayView.swift */,
 				02B4624226F9E6B900B880EB /* DataBubbleView.swift */,
+				625964A927C1A236003770C1 /* DriversListView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -281,6 +285,7 @@
 				02F3DBE226F8BF80006953F3 /* AppDelegate.swift in Sources */,
 				027BC28526FDF0EC00751081 /* ARViewContainer.swift in Sources */,
 				02B4624426F9E6B900B880EB /* DataBubbleView.swift in Sources */,
+				625964AB27C1A236003770C1 /* DriversListView.swift in Sources */,
 				02F3DBF126F8BFF9006953F3 /* LapDataModel.swift in Sources */,
 				021E2C0F26FCB7CF00D76B0E /* SessionsDataModel.swift in Sources */,
 				027BC28626FDF15700751081 /* LapReplayView.swift in Sources */,
@@ -298,6 +303,7 @@
 				02E7FFF327074CE70029E234 /* AppModel.swift in Sources */,
 				02B4624326F9E6B900B880EB /* DataBubbleView.swift in Sources */,
 				02FDCA4126DF87BD002E6C28 /* F1_mac_appApp.swift in Sources */,
+				625964AA27C1A236003770C1 /* DriversListView.swift in Sources */,
 				027BC28326FDF08300751081 /* ARViewContainer.swift in Sources */,
 				02FDCA4F26DF8822002E6C28 /* LapDataModel.swift in Sources */,
 				021E2C0E26FCB7CF00D76B0E /* SessionsDataModel.swift in Sources */,
