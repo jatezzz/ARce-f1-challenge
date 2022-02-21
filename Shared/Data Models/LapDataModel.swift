@@ -47,13 +47,12 @@ final class LapDataModel: ObservableObject {
         myTrack.isEnabled = false
 
         // • Loading the nice track from the usdc file
-        let myTrackTransformed = try! Entity.load(named: "1960Final")
+        let myTrackTransformed = try! ModelEntity.load(named: "1960Final")
 
-        let trackAnchor = AnchorEntity(world: .zero)
-        trackAnchor.addChild(myTrackTransformed)
 
         myTrackTransformed.orientation = simd_quatf(angle: .pi / 4, axis: [0, 1, 0])
 
+//        installGestures(on: trackAnchor)
 
         // • The camera
         let cameraEntity = PerspectiveCamera()
@@ -85,8 +84,28 @@ final class LapDataModel: ObservableObject {
 
         // Run the car
         mainCar = ObjectInRace(entity: myCar, camera: cameraEntity, referenceEntityTransform: myTrackTransformed, referenceEntity: myTrack)
-        secondCar = ObjectInRace(entity: fastestCar, camera: nil, referenceEntityTransform: myTrackTransformed, referenceEntity: myTrack)
 
+        secondCar = ObjectInRace(entity: fastestCar, camera: nil, referenceEntityTransform: myTrackTransformed, referenceEntity: myTrack)
+        
+        
+        let container = createBox()
+        placeBox(box: container, at: SIMD3(x: 0, y: 0, z: 0))
+        container.addChild(myTrackTransformed)
+        container.generateCollisionShapes(recursive: true)
+        arView.installGestures([.scale, .rotation], for: container)
+        arView.debugOptions = [
+//            .showPhysics,
+//                                .showStatistics,
+                                .showWorldOrigin,
+                                .showAnchorOrigins,
+//                                .showAnchorGeometry,
+//                                .showFeaturePoints,
+//                                .showSceneUnderstanding
+        ]
+        
+        let trackAnchor = AnchorEntity(world: .zero)
+        trackAnchor.addChild(container)
+        
         #if !targetEnvironment(simulator) && !os(macOS)
         arView.addCoaching()
         #endif
@@ -95,6 +114,9 @@ final class LapDataModel: ObservableObject {
         #if os(macOS)
         arView.scene.addAnchor(cameraAnchor)
         #endif
+        
+        
+        
         sceneEventsUpdateSubscription = arView.scene.subscribe(to: SceneEvents.Update.self) { [weak self] _ in
             guard let self = self else {
                 return
@@ -113,7 +135,28 @@ final class LapDataModel: ObservableObject {
 
     func load(session: Session) {
         objects.removeAll()
+
+//        let box2 = createBox()
+//        placeBox(box: box2, at: SIMD3(x: 0, y: 0, z: 0))
+//        installGestures(on: box2)
+
         loadSessionIntoModel(session: session, model: mainCar)
+    }
+
+    func createBox() -> ModelEntity{
+        let box = MeshResource.generateBox(size: 0.08) // Generate mesh
+        let boxMaterial = SimpleMaterial(color: .blue, isMetallic: true)
+        let boxEntity = ModelEntity(mesh: box, materials: [boxMaterial])
+        return boxEntity
+    }
+    func placeBox(box:ModelEntity,at position: SIMD3<Float>){
+        let boxAnchor = AnchorEntity(world: position)
+        boxAnchor.addChild(box)
+        arView.scene.addAnchor(boxAnchor)
+    }
+    func installGestures(on object: ModelEntity){
+        object.generateCollisionShapes(recursive: true)
+        arView.installGestures([.rotation,.scale], for: object)
     }
 
     func addSession(session: Session) {
@@ -124,6 +167,7 @@ final class LapDataModel: ObservableObject {
         AppModel.shared.appState = .loadingTrack
         self.cancellable = []
         model.reset()
+        
         NetworkHelper.shared.fetchPositionData(for: session)
                 .receive(on: RunLoop.main)
                 .sink { completion in
