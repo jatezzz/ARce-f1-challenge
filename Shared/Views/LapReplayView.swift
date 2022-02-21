@@ -22,6 +22,11 @@ struct LapReplayView: View {
     @State var presentingEngineInfo = true
     @State var presentingLapInfo = true
 
+    @State var captureSelected: Bool = false
+    @State var weatherSelected: Bool = false
+    @State var commentsSelected: Bool = false
+    @State var timeSelected: Bool = false
+
     var body: some View {
         ZStack {
             ARViewContainer()
@@ -68,7 +73,7 @@ struct LapReplayView: View {
 
                 VStack {
                     HStack{
-                        OverlayButtonsView()
+                        OverlayButtonsView(captureSelected: $captureSelected, weatherSelected: $weatherSelected, commentsSelected: $commentsSelected, timeSelected: $timeSelected)
                         Spacer()
                     } .padding()
                     Spacer()

@@ -11,26 +11,46 @@ struct OverlayButtonsView: View {
 
     @State private var selectedIndex = 0
 
+    @Binding var captureSelected: Bool
+    @Binding var weatherSelected: Bool
+    @Binding var commentsSelected: Bool
+    @Binding var timeSelected: Bool
+
+
     var body: some View {
         VStack(alignment: .center, spacing: 10) {
-            OverlayButton(image: Image(systemName: "camera"))
-            OverlayButton(image: Image(systemName: "cloud.sun"))
-            OverlayButton(image: Image(systemName: "bubble.right"))
-            OverlayButton(image: Image(systemName: "timer"))
+            OverlayButton(imageName: "camera", deselectAll: deselectAll, observable: $captureSelected)
+            OverlayButton(imageName: "cloud.sun", deselectAll: deselectAll, observable: $weatherSelected)
+            OverlayButton(imageName: "bubble.right", deselectAll: deselectAll, observable: $commentsSelected)
+            OverlayButton(imageName: "digitalcrown.horizontal.arrow.counterclockwise", deselectAll: deselectAll, observable: $timeSelected)
         }
+    }
+
+    func deselectAll() {
+        captureSelected = false
+        weatherSelected = false
+        commentsSelected = false
+        timeSelected = false
     }
 }
 
 struct OverlayButton: View {
 
-    @State var image: Image
+    @State var imageName: String
+    @State var deselectAll: () -> Void
+    @Binding var observable: Bool
 
     var body: some View {
         VStack(alignment: .center, spacing: 10) {
             Button {
-
+                if observable {
+                    deselectAll()
+                } else {
+                    deselectAll()
+                    observable = true
+                }
             } label: {
-                image
+                Image(systemName: "\(imageName)\(observable ? ".fill" : "")")
                     .resizable()
                     .scaledToFill()
                     .foregroundColor(.black)
@@ -45,8 +65,8 @@ struct OverlayButton: View {
 }
 
 
-struct OverlayButtonsView_Previews: PreviewProvider {
-    static var previews: some View {
-        OverlayButtonsView()
-    }
-}
+//struct OverlayButtonsView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        OverlayButtonsView()
+//    }
+//}
