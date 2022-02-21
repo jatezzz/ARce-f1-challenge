@@ -31,6 +31,8 @@ struct LapReplayView: View {
 
     @State var sliderValue: Double = 0
 
+    @State private var isAppearing: Bool = false
+
     var body: some View {
         ZStack {
             ARViewContainer()
@@ -76,9 +78,15 @@ struct LapReplayView: View {
                         }
                         if timeSelected {
                             #warning("set max value as session duration")
-                            Slider(value: $sliderValue, in: 0...20)
-                            Text("Current slider value: \(sliderValue, specifier: "%.2f")")
-                                .foregroundColor(.white)
+                            VStack {
+                                Slider(value: $sliderValue, in: 0...20)
+                                Text("Current slider value: \(sliderValue, specifier: "%.2f")")
+                                    .foregroundColor(.white)
+                            }
+                            .fadeInAnimation(isAnimating: isAppearing)
+                            .onAppear {
+                                isAppearing = true
+                            }
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)

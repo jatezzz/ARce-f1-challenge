@@ -9,6 +9,8 @@
 import SwiftUI
 
 struct DataBubbleView: View {
+
+    @State private var isAppearing: Bool = false
     
     let currentData: ParticipantViewData
 
@@ -26,6 +28,7 @@ struct DataBubbleView: View {
         }
         .font(.system(size: 18, design: .monospaced))
         .foregroundColor(.white)
+
     }
     
     @ViewBuilder
@@ -77,6 +80,10 @@ struct DataBubbleView: View {
             ).opacity(0.7)
         )
         .cornerRadius(10)
+        .fadeInAnimation(isAnimating: isAppearing)
+        .onAppear {
+            isAppearing = true
+        }
     }
     
     @ViewBuilder
@@ -116,6 +123,10 @@ struct DataBubbleView: View {
             ).opacity(0.7)
         )
         .cornerRadius(10)
+        .fadeInAnimation(isAnimating: isAppearing)
+        .onAppear {
+            isAppearing = true
+        }
     }
     
 

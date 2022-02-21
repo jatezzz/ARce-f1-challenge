@@ -36,6 +36,8 @@
 		625964AB27C1A236003770C1 /* DriversListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 625964A927C1A236003770C1 /* DriversListView.swift */; };
 		625964AD27C2FE13003770C1 /* OverlayButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 625964AC27C2FE13003770C1 /* OverlayButtonsView.swift */; };
 		625964AE27C2FE13003770C1 /* OverlayButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 625964AC27C2FE13003770C1 /* OverlayButtonsView.swift */; };
+		625964B227C31918003770C1 /* View+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 625964B127C31918003770C1 /* View+Extension.swift */; };
+		625964B327C31918003770C1 /* View+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 625964B127C31918003770C1 /* View+Extension.swift */; };
 		936D00663D090BF977915344 /* carData3_response.json in Resources */ = {isa = PBXBuildFile; fileRef = 936D0B4B8A9589D69CFFB46C /* carData3_response.json */; };
 		936D006F4BCABCB5D5DD2125 /* NetworkHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 936D047256AF150D0C784681 /* NetworkHelper.swift */; };
 		936D012EC690AA23B904E8FA /* ObjectInRace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 936D047DB3C4C9920D3F7FF9 /* ObjectInRace.swift */; };
@@ -77,6 +79,7 @@
 		02FDDC6B2719A9E800E3587F /* 1960Final.usdc */ = {isa = PBXFileReference; lastKnownFileType = file; path = 1960Final.usdc; sourceTree = "<group>"; };
 		625964A927C1A236003770C1 /* DriversListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriversListView.swift; sourceTree = "<group>"; };
 		625964AC27C2FE13003770C1 /* OverlayButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayButtonsView.swift; sourceTree = "<group>"; };
+		625964B127C31918003770C1 /* View+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Extension.swift"; sourceTree = "<group>"; };
 		936D047256AF150D0C784681 /* NetworkHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkHelper.swift; sourceTree = "<group>"; };
 		936D047DB3C4C9920D3F7FF9 /* ObjectInRace.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectInRace.swift; sourceTree = "<group>"; };
 		936D0B4B8A9589D69CFFB46C /* carData3_response.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = carData3_response.json; sourceTree = "<group>"; };
@@ -108,6 +111,7 @@
 		020AEBC626F89274008DDDE9 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				625964B027C31909003770C1 /* Extensions */,
 				02ED7FEB26FDDB810060B92F /* Data Models */,
 				02ED7FEA26FDDB600060B92F /* Views */,
 				02A951D726E8D46400529213 /* Model.swift */,
@@ -211,6 +215,14 @@
 				02C73C53271EFB6400EC6504 /* COTA.rcproject */,
 			);
 			path = "3D models";
+			sourceTree = "<group>";
+		};
+		625964B027C31909003770C1 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				625964B127C31918003770C1 /* View+Extension.swift */,
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -333,6 +345,7 @@
 				02F3DBE226F8BF80006953F3 /* AppDelegate.swift in Sources */,
 				027BC28526FDF0EC00751081 /* ARViewContainer.swift in Sources */,
 				02B4624426F9E6B900B880EB /* DataBubbleView.swift in Sources */,
+				625964B327C31918003770C1 /* View+Extension.swift in Sources */,
 				625964AB27C1A236003770C1 /* DriversListView.swift in Sources */,
 				02F3DBF126F8BFF9006953F3 /* LapDataModel.swift in Sources */,
 				021E2C0F26FCB7CF00D76B0E /* SessionsDataModel.swift in Sources */,
@@ -354,6 +367,7 @@
 				02E7FFF327074CE70029E234 /* AppModel.swift in Sources */,
 				02B4624326F9E6B900B880EB /* DataBubbleView.swift in Sources */,
 				02FDCA4126DF87BD002E6C28 /* F1_mac_appApp.swift in Sources */,
+				625964B227C31918003770C1 /* View+Extension.swift in Sources */,
 				625964AA27C1A236003770C1 /* DriversListView.swift in Sources */,
 				027BC28326FDF08300751081 /* ARViewContainer.swift in Sources */,
 				02FDCA4F26DF8822002E6C28 /* LapDataModel.swift in Sources */,

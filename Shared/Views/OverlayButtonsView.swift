@@ -36,6 +36,8 @@ struct OverlayButtonsView: View {
 
 struct OverlayButton: View {
 
+    @State private var isAppearing: Bool = false
+
     @State var imageName: String
     @State var deselectAll: () -> Void
     @Binding var observable: Bool
@@ -60,6 +62,10 @@ struct OverlayButton: View {
             .padding()
             .background(.gray.opacity(0.6))
             .cornerRadius(15)
+            .fadeInAnimation(isAnimating: isAppearing)
+            .onAppear {
+                isAppearing = true
+            }
         }
     }
 }
