@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import RealityKit
 import SwiftUI
+import ARKit
 
 final class LapDataModel: ObservableObject {
 
@@ -92,16 +93,18 @@ final class LapDataModel: ObservableObject {
         placeBox(box: container, at: SIMD3(x: 0, y: 0, z: 0))
         container.addChild(myTrackTransformed)
         container.generateCollisionShapes(recursive: true)
+        #if !os(macOS)
         arView.installGestures([.scale, .rotation], for: container)
         arView.debugOptions = [
 //            .showPhysics,
 //                                .showStatistics,
                                 .showWorldOrigin,
                                 .showAnchorOrigins,
-//                                .showAnchorGeometry,
-//                                .showFeaturePoints,
+                                .showAnchorGeometry,
+                                .showFeaturePoints,
 //                                .showSceneUnderstanding
         ]
+        #endif
         
         let trackAnchor = AnchorEntity(world: .zero)
         trackAnchor.addChild(container)
@@ -116,6 +119,14 @@ final class LapDataModel: ObservableObject {
         #endif
         
         
+        let planeMesh = MeshResource.generatePlane(width: 0.15, depth: 0.15)
+        let planeMaterial = SimpleMaterial(color: .white, isMetallic: false)
+        let planeEntity : ModelEntity? = ModelEntity(mesh: planeMesh, materials: [planeMaterial])
+        let planeAnchor = AnchorEntity()
+        planeAnchor.addChild(planeEntity!)
+        arView.scene.addAnchor(planeAnchor)
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapOnARView))
+        arView.addGestureRecognizer(tapGesture)
         
         sceneEventsUpdateSubscription = arView.scene.subscribe(to: SceneEvents.Update.self) { [weak self] _ in
             guard let self = self else {
@@ -130,6 +141,66 @@ final class LapDataModel: ObservableObject {
                     self.secondarticipant = viewData
                 }
             })
+            
+            #if !os(macOS)
+            guard let result = self.arView.raycast(from: self.arView.center, allowing: .estimatedPlane, alignment: .horizontal).first else {
+            return
+
+            }
+            planeEntity!.setTransformMatrix(result.worldTransform, relativeTo: nil)
+            #endif
+            
+        }
+    }
+    
+    @objc func tapOnARView(sender: UITapGestureRecognizer) {
+        guard let arView = arView else { return }
+        let location = sender.location(in: arView)
+//        if let node = nodeAtLocation(location) {
+//            removeCircle(node: node)
+//        }
+//        else
+        if let result = raycastResult(fromLocation: location) {
+            addCircle(raycastResult: result)
+        }
+    }
+    
+    private var circles: [Entity] = []
+    private func raycastResult(fromLocation location: CGPoint) -> CollisionCastHit? {
+        // let query = arView.makeRaycastQuery(from: location,
+//    allowing: .existingPlaneGeometry,
+//    alignment: .horizontal),
+        guard let ray = self.arView.ray(through: location) else { return nil }
+        
+        let results = arView.scene.raycast(origin: ray.origin, direction: ray.direction)
+//        let results = arView.session.raycast(query)
+        print(results)
+        return results.first
+    }
+    
+    private func addCircle(raycastResult: CollisionCastHit) {
+        let circleNode = GeometryUtils.createSphere()
+        if circles.count >= 2 {
+            for circle in circles {
+                circle.removeFromParent()
+            }
+            circles.removeAll()
+        }
+        
+        let planeAnchor = AnchorEntity(world: raycastResult.position)
+        planeAnchor.addChild(circleNode)
+        arView.scene.addAnchor(planeAnchor)
+//        circleNode.setTransformMatrix(raycastResult.position, relativeTo: nil)
+        
+        circles.append(circleNode)
+        nodesUpdated()
+    }
+    
+    
+    private func nodesUpdated() {
+        if circles.count == 2 {
+            let distance = GeometryUtils.calculateDistance(firstNode: circles[0], secondNode: circles[1])
+            print("distance = \(distance)")
         }
     }
 
@@ -154,9 +225,12 @@ final class LapDataModel: ObservableObject {
         boxAnchor.addChild(box)
         arView.scene.addAnchor(boxAnchor)
     }
+    
     func installGestures(on object: ModelEntity){
         object.generateCollisionShapes(recursive: true)
+        #if !os(macOS)
         arView.installGestures([.rotation,.scale], for: object)
+        #endif
     }
 
     func addSession(session: Session) {
@@ -204,4 +278,3 @@ final class LapDataModel: ObservableObject {
         })
     }
 }
-
