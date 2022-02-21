@@ -25,7 +25,8 @@ final class LapDataModel: ObservableObject {
     let mainCar: ObjectInRace
     let secondCar: ObjectInRace
     private var fastestLapPositions: [Motion] = []
-
+    
+    let temporalParent = Entity()
 
     private var sceneEventsUpdateSubscription: Cancellable!
     private var carAnchor: AnchorEntity?
@@ -33,7 +34,7 @@ final class LapDataModel: ObservableObject {
     private var cancellable = Set<AnyCancellable>()
 
     var objects: [ObjectInRace] = []
-    var container : ModelEntity? = nil
+    var container : ModelEntity!
     init() {
         // Create the 3D view
         arView = ARView(frame: .zero)
@@ -94,6 +95,7 @@ final class LapDataModel: ObservableObject {
         let trackAnchor = AnchorEntity(world: .zero)
         #if !os(macOS)
         trackAnchor.addChild(container!)
+        trackAnchor.addChild(temporalParent)
         #else
         trackAnchor.addChild(historicalTrack)
         #endif
@@ -141,30 +143,9 @@ final class LapDataModel: ObservableObject {
         guard let arView = arView else { return }
         
         if customBool, let savedTransform = savedTransform, let container = container {
-        
-            let q = arView.cameraTransform.matrix.eulerAngles
-            let q2 = savedTransform.matrix.eulerAngles
-            self.container?.transform = Transform(pitch: 0,
-                                                  yaw: -(q.y - q2.y),
-                                                           roll: 0)
             self.container?.transform.translation = container.transform.translation - (savedTransform.translation-arView.cameraTransform.translation)
             
         }
-        
-//        print("transform \(arView.cameraTransform)\t \(savedTransform?.rotation.angle)")
-//        print("Nomar AR Transform: \(arView.cameraTransform)")
-//        print("relativePost: \(container!.position)")
-        let q = arView.cameraTransform.matrix.eulerAngles
-//        var yaw = atan2(2.0*(q.y*q.z + q.w*q.x), q.w*q.w - q.x*q.x - q.y*q.y + q.z*q.z);
-//        var pitch = asin(-2.0*(q.x*q.z - q.w*q.y));
-//        var roll = atan2(2.0*(q.x*q.y + q.w*q.z), q.w*q.w + q.x*q.x - q.y*q.y - q.z*q.z);
-        print("q: \(q)")
-//        print("q.axis: \(q.axis)")
-//        print("q.axis.simd_normalize: \(simd_normalize(q.axis))")
-//        print("q.angle: \(q.angle)")
-//
-//        print("= minus: \(q-(savedTransform?.rotation ?? simd_quatf()))")
-//        print("yaw: \(yaw), pitch:\(pitch), roll:\(roll)")
         savedTransform = arView.cameraTransform
         customBool = !customBool
        
