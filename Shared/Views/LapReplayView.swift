@@ -22,6 +22,8 @@ struct LapReplayView: View {
     @State var presentingEngineInfo = true
     @State var presentingLapInfo = true
 
+    @State var showOverlay = true
+
     @State var captureSelected: Bool = false
     @State var weatherSelected: Bool = false
     @State var commentsSelected: Bool = false
@@ -55,28 +57,30 @@ struct LapReplayView: View {
                 }
 
             case .playing, .stopped:
-                VStack {
-                    Spacer()
-                    ZStack {
-                        HStack(alignment: .bottom) {
-                            DataBubbleView(currentData: dataModel.mainParticipant, presentingEngineInfo: $presentingEngineInfo, presentingLapInfo: $presentingLapInfo)
-                                .frame(alignment: .leading)
-                            Spacer()
-                            if let _ = compareSession {
-                                DataBubbleView(currentData: dataModel.secondarticipant, presentingEngineInfo: $presentingEngineInfo, presentingLapInfo: $presentingLapInfo)
-                                    .frame(alignment: .trailing)
+                if showOverlay {
+                    VStack {
+                        Spacer()
+                        ZStack {
+                            HStack(alignment: .bottom) {
+                                DataBubbleView(currentData: dataModel.mainParticipant, presentingEngineInfo: $presentingEngineInfo, presentingLapInfo: $presentingLapInfo)
+                                    .frame(alignment: .leading)
+                                Spacer()
+                                if let _ = compareSession {
+                                    DataBubbleView(currentData: dataModel.secondarticipant, presentingEngineInfo: $presentingEngineInfo, presentingLapInfo: $presentingLapInfo)
+                                        .frame(alignment: .trailing)
+                                }
                             }
                         }
                     }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                VStack {
-                    HStack{
-                        OverlayButtonsView(captureSelected: $captureSelected, weatherSelected: $weatherSelected, commentsSelected: $commentsSelected, timeSelected: $timeSelected)
+                    VStack {
+                        HStack{
+                            OverlayButtonsView(captureSelected: $captureSelected, weatherSelected: $weatherSelected, commentsSelected: $commentsSelected, timeSelected: $timeSelected)
+                            Spacer()
+                        } .padding()
                         Spacer()
-                    } .padding()
-                    Spacer()
+                    }
                 }
 
             default: EmptyView()
@@ -115,17 +119,19 @@ struct LapReplayView: View {
                         }
                     }
 
-                    Section {
-                        Button{
-                            presentingEngineInfo = !presentingEngineInfo
-                        } label: {
-                            Label("Engine", systemImage: presentingEngineInfo ? "checkmark.circle" : "circle")
-                        }
+                    if showOverlay {
+                        Section {
+                            Button{
+                                presentingEngineInfo = !presentingEngineInfo
+                            } label: {
+                                Label("Engine", systemImage: presentingEngineInfo ? "checkmark.circle" : "circle")
+                            }
 
-                        Button{
-                            presentingLapInfo = !presentingLapInfo
-                        } label: {
-                            Label("Track", systemImage: presentingLapInfo ? "checkmark.circle" : "circle")
+                            Button{
+                                presentingLapInfo = !presentingLapInfo
+                            } label: {
+                                Label("Track", systemImage: presentingLapInfo ? "checkmark.circle" : "circle")
+                            }
                         }
                     }
                 } label: {
@@ -139,11 +145,11 @@ struct LapReplayView: View {
             ToolbarItemGroup(placement: .bottomBar) {
                 let playing = appModel.appState == .playing
 
-                Button(action: {
-
-                }, label: {
-                    Image(systemName: "heart")
-                })
+                Button{
+                    showOverlay = !showOverlay
+                } label: {
+                    Label("Engine", systemImage: showOverlay ? "eye.fill" : "eye")
+                }
 
                 Spacer()
 
