@@ -72,6 +72,7 @@ struct LapReplayView: View {
                                         .frame(alignment: .trailing)
                                 }
                             }
+                            .padding()
                         }
                         if timeSelected {
                             #warning("set max value as session duration")

@@ -26,13 +26,12 @@ struct DataBubbleView: View {
         }
         .font(.system(size: 18, design: .monospaced))
         .foregroundColor(.white)
-        .padding()
     }
     
     @ViewBuilder
     private func renderTopBubble() -> some View {
         
-        let iconColWidth = 25.0
+        let iconColWidth = 20.0
         let valueColWidth = 75.0
         
         VStack(alignment: .leading, spacing: 10) {
@@ -44,6 +43,7 @@ struct DataBubbleView: View {
                     .frame(width: valueColWidth, alignment: .trailing)
                 Text("km/h").fontWeight(.ultraLight)
             }
+
             HStack(spacing: 5) {
                 Image(systemName: "speedometer")
                     .frame(width: iconColWidth, alignment: .center)
@@ -52,6 +52,7 @@ struct DataBubbleView: View {
                     .frame(width: valueColWidth, alignment: .trailing)
                 Text("rpm").fontWeight(.ultraLight)
             }
+
             HStack(spacing: 5) {
                 Image(systemName: "gear")
                     .frame(width: iconColWidth, alignment: .center)
@@ -61,7 +62,7 @@ struct DataBubbleView: View {
             }
             
         }
-        .frame(width: 180)
+        .frame(width: 150)
         .padding()
         .background(
             LinearGradient(
@@ -82,7 +83,7 @@ struct DataBubbleView: View {
     private func renderBottomBubble() -> some View {
         
         let titleColWidth = 80.0
-        let valueColWidth = 50.0
+        let valueColWidth = 40.0
         
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 5) {
@@ -100,7 +101,7 @@ struct DataBubbleView: View {
                     .frame(width: valueColWidth, alignment: .trailing)
             }
         }
-        .frame(width: 180)
+        .frame(width: 150)
         .padding()
         .background(
             LinearGradient(
