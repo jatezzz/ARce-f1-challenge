@@ -29,6 +29,8 @@ struct LapReplayView: View {
     @State var commentsSelected: Bool = false
     @State var timeSelected: Bool = false
 
+    @State var sliderValue: Double = 0
+
     var body: some View {
         ZStack {
             ARViewContainer()
@@ -70,6 +72,12 @@ struct LapReplayView: View {
                                         .frame(alignment: .trailing)
                                 }
                             }
+                        }
+                        if timeSelected {
+                            #warning("set max value as session duration")
+                            Slider(value: $sliderValue, in: 0...20)
+                            Text("Current slider value: \(sliderValue, specifier: "%.2f")")
+                                .foregroundColor(.white)
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
