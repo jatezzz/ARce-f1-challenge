@@ -33,7 +33,7 @@ final class LapDataModel: ObservableObject {
     private var cancellable = Set<AnyCancellable>()
 
     var objects: [ObjectInRace] = []
-
+    var container : ModelEntity? = nil
     init() {
         // Create the 3D view
         arView = ARView(frame: .zero)
@@ -79,19 +79,21 @@ final class LapDataModel: ObservableObject {
 
         #if !os(macOS)
 
-        let container = createBox(size: 0.001)
-        placeBox(box: container, at: SIMD3.zero)
-        container.addChild(historicalTrack)
-        container.generateCollisionShapes(recursive: true)
-        arView.installGestures([.all], for: container).forEach {
+        container = createBox(size: 0.001)
+        placeBox(box: container!, at: SIMD3.zero)
+        container!.addChild(historicalTrack)
+        container!.generateCollisionShapes(recursive: true)
+        arView.installGestures([.scale, .rotation], for: container!).forEach {
             $0.addTarget(self, action: #selector(handleModelGesture))
         }
+                let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapOnARView))
+                arView.addGestureRecognizer(tapGesture)
         arView.debugOptions = [.showWorldOrigin, .showAnchorOrigins]
         #endif
 
         let trackAnchor = AnchorEntity(world: .zero)
         #if !os(macOS)
-        trackAnchor.addChild(container)
+        trackAnchor.addChild(container!)
         #else
         trackAnchor.addChild(historicalTrack)
         #endif
@@ -104,6 +106,8 @@ final class LapDataModel: ObservableObject {
         #if os(macOS)
         arView.scene.addAnchor(cameraAnchor)
         #endif
+        
+//        var customCount = 0;
 
         sceneEventsUpdateSubscription = arView.scene.subscribe(to: SceneEvents.Update.self) { [weak self] _ in
             guard let self = self else {
@@ -118,9 +122,55 @@ final class LapDataModel: ObservableObject {
                     self.secondarticipant = viewData
                 }
             })
+//            container.transform.rotation = simd_quatf(angle: (.pi / 400)*Float(customCount), axis: [1, 0, 0])
+//            container.transform.translation = SIMD3<Float>([container.transform.translation.x, container.transform.translation.y+Float(customCount/1000), container.transform.translation.z])
+//            customCount += 1
         }
     }
+    
+//    mainEntity.transform = referenceEntityTransform.convert(transform: mainEntity.transform, to: referenceEntity)
 
+    var customBool = false
+    var savedTransform : Transform?
+    let originVector = simd_float3(0, 0, 1)
+    var angle: Float = 0
+    func degreesToRadians(_ degrees: Float) -> Float {
+        return degrees * .pi / 180
+    }
+    @objc func tapOnARView(sender: UITapGestureRecognizer) {
+        guard let arView = arView else { return }
+        
+        if customBool, let savedTransform = savedTransform, let container = container {
+        
+            let q = arView.cameraTransform.matrix.eulerAngles
+            let q2 = savedTransform.matrix.eulerAngles
+            self.container?.transform = Transform(pitch: 0,
+                                                  yaw: -(q.y - q2.y),
+                                                           roll: 0)
+            self.container?.transform.translation = container.transform.translation - (savedTransform.translation-arView.cameraTransform.translation)
+            
+        }
+        
+//        print("transform \(arView.cameraTransform)\t \(savedTransform?.rotation.angle)")
+//        print("Nomar AR Transform: \(arView.cameraTransform)")
+//        print("relativePost: \(container!.position)")
+        let q = arView.cameraTransform.matrix.eulerAngles
+//        var yaw = atan2(2.0*(q.y*q.z + q.w*q.x), q.w*q.w - q.x*q.x - q.y*q.y + q.z*q.z);
+//        var pitch = asin(-2.0*(q.x*q.z - q.w*q.y));
+//        var roll = atan2(2.0*(q.x*q.y + q.w*q.z), q.w*q.w + q.x*q.x - q.y*q.y - q.z*q.z);
+        print("q: \(q)")
+//        print("q.axis: \(q.axis)")
+//        print("q.axis.simd_normalize: \(simd_normalize(q.axis))")
+//        print("q.angle: \(q.angle)")
+//
+//        print("= minus: \(q-(savedTransform?.rotation ?? simd_quatf()))")
+//        print("yaw: \(yaw), pitch:\(pitch), roll:\(roll)")
+        savedTransform = arView.cameraTransform
+        customBool = !customBool
+       
+    }
+    
+    
     #if !os(macOS)
     @objc func handleModelGesture(_ sender: Any) {
         switch sender {
@@ -197,5 +247,49 @@ final class LapDataModel: ObservableObject {
             model.currentFrame = 0
             model.frameQuantity = minQuantity
         })
+    }
+}
+
+
+extension matrix_float4x4 {
+    // Function to convert rad to deg
+    func radiansToDegress(radians: Float32) -> Float32 {
+        return radians
+    }
+    var translation: SCNVector3 {
+       get {
+           return SCNVector3Make(columns.3.x, columns.3.y, columns.3.z)
+       }
+    }
+    // Retrieve euler angles from a quaternion matrix
+    var eulerAngles: SCNVector3 {
+        get {
+            // Get quaternions
+            let qw = sqrt(1 + self.columns.0.x + self.columns.1.y + self.columns.2.z) / 2.0
+            let qx = (self.columns.2.y - self.columns.1.z) / (qw * 4.0)
+            let qy = (self.columns.0.z - self.columns.2.x) / (qw * 4.0)
+            let qz = (self.columns.1.x - self.columns.0.y) / (qw * 4.0)
+
+            // Deduce euler angles
+            /// yaw (z-axis rotation)
+            let siny = +2.0 * (qw * qz + qx * qy)
+            let cosy = +1.0 - 2.0 * (qy * qy + qz * qz)
+            let yaw = radiansToDegress(radians:atan2(siny, cosy))
+            // pitch (y-axis rotation)
+            let sinp = +2.0 * (qw * qy - qz * qx)
+            var pitch: Float
+            if abs(sinp) >= 1 {
+                pitch = radiansToDegress(radians:copysign(Float.pi / 2, sinp))
+            } else {
+                pitch = radiansToDegress(radians:asin(sinp))
+            }
+            /// roll (x-axis rotation)
+            let sinr = +2.0 * (qw * qx + qy * qz)
+            let cosr = +1.0 - 2.0 * (qx * qx + qy * qy)
+            let roll = radiansToDegress(radians:atan2(sinr, cosr))
+            
+            /// return array containing ypr values
+            return SCNVector3(yaw, pitch, roll)
+            }
     }
 }
