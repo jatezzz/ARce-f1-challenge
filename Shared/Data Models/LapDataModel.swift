@@ -48,7 +48,7 @@ final class LapDataModel: ObservableObject {
         myTrack.isEnabled = false
 
         // • Loading the nice track from the usdc file
-        let myTrackTransformed = try! ModelEntity.load(named: "1960Final")
+        let myTrackTransformed = try! Entity.load(named: "1960Final")
 
 
         myTrackTransformed.orientation = simd_quatf(angle: .pi / 4, axis: [0, 1, 0])
@@ -89,19 +89,21 @@ final class LapDataModel: ObservableObject {
         secondCar = ObjectInRace(entity: fastestCar, camera: nil, referenceEntityTransform: myTrackTransformed, referenceEntity: myTrack)
         
         
-        let container = createBox()
+        let container = createBox(size: 0.4)
         placeBox(box: container, at: SIMD3(x: 0, y: 0, z: 0))
         container.addChild(myTrackTransformed)
         container.generateCollisionShapes(recursive: true)
         #if !os(macOS)
-        arView.installGestures([.scale, .rotation], for: container)
+        arView.installGestures([.all], for: container).forEach {
+            $0.addTarget(self, action: #selector(handleModelGesture))
+        }
         arView.debugOptions = [
 //            .showPhysics,
 //                                .showStatistics,
                                 .showWorldOrigin,
                                 .showAnchorOrigins,
-                                .showAnchorGeometry,
-                                .showFeaturePoints,
+//                                .showAnchorGeometry,
+//                                .showFeaturePoints,
 //                                .showSceneUnderstanding
         ]
         #endif
@@ -125,8 +127,8 @@ final class LapDataModel: ObservableObject {
         let planeAnchor = AnchorEntity()
         planeAnchor.addChild(planeEntity!)
         arView.scene.addAnchor(planeAnchor)
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapOnARView))
-        arView.addGestureRecognizer(tapGesture)
+//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapOnARView))
+//        arView.addGestureRecognizer(tapGesture)
         
         sceneEventsUpdateSubscription = arView.scene.subscribe(to: SceneEvents.Update.self) { [weak self] _ in
             guard let self = self else {
@@ -142,15 +144,49 @@ final class LapDataModel: ObservableObject {
                 }
             })
             
-            #if !os(macOS)
-            guard let result = self.arView.raycast(from: self.arView.center, allowing: .estimatedPlane, alignment: .horizontal).first else {
-            return
-
-            }
-            planeEntity!.setTransformMatrix(result.worldTransform, relativeTo: nil)
-            #endif
+//            #if !os(macOS)
+//            guard let result = self.arView.raycast(from: self.arView.center, allowing: .estimatedPlane, alignment: .horizontal).first else {
+//            return
+//
+//            }
+//            planeEntity!.setTransformMatrix(result.worldTransform, relativeTo: nil)
+//            #endif
             
         }
+    }
+    
+    var gestureStartLocation:SIMD3<Float>?
+    
+    @objc func handleModelGesture(_ sender:Any){
+        switch sender{
+        case let rotation as EntityRotationGestureRecognizer:
+            print("Rotation and name:\(rotation.entity!.name)")
+//            rotation.isEnabled = false
+        case let translation as EntityTranslationGestureRecognizer:
+            print("translation and nane \(translation.entity!.name)")
+            if translation.state == .ended || translation.state == .cancelled {
+                gestureStartLocation = nil
+                return
+            }
+            guard let gestureCurrentLocation = translation.entity?.transform.translation else { return }
+            guard let _ = gestureStartLocation else {
+                gestureStartLocation  = gestureCurrentLocation
+                return
+            }
+            let delta = gestureStartLocation! - gestureCurrentLocation
+            let distance = ((delta.x * delta.x) + (delta.y * delta.y) + (delta.z + delta.z)).squareRoot()
+            print("startlocation;\(String(describing:gestureStartLocation)), currentlocation: \(gestureCurrentLocation), the distance is \(distance)")
+            
+        case let Scale as EntityScaleGestureRecognizer:
+//            Scale.removeTarget(nil, action: nil)
+//            Scale.addTarget(self, action: #selector(handleScaleGesture))
+            print("In Scale")
+        default:
+            break
+        }
+    }
+    @objc func handleScaleGesture(_ sender:Any){
+       print("In Scale")
     }
     
     @objc func tapOnARView(sender: UITapGestureRecognizer) {
@@ -214,8 +250,8 @@ final class LapDataModel: ObservableObject {
         loadSessionIntoModel(session: session, model: mainCar)
     }
 
-    func createBox() -> ModelEntity{
-        let box = MeshResource.generateBox(size: 0.08) // Generate mesh
+    func createBox(size: Float = 0.08) -> ModelEntity{
+        let box = MeshResource.generateBox(size: size) // Generate mesh
         let boxMaterial = SimpleMaterial(color: .blue, isMetallic: true)
         let boxEntity = ModelEntity(mesh: box, materials: [boxMaterial])
         return boxEntity
