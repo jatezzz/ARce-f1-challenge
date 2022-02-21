@@ -6,7 +6,10 @@
 //
 
 import Foundation
+
+#if !os(macOS)
 import ARKit
+#endif
 import RealityKit
 
 class GeometryUtils {
@@ -25,15 +28,17 @@ class GeometryUtils {
         return calculateDistance(first: firstNode.position, second: secondNode.position)
     }
 
+    #if !os(macOS)
     static func createCircle(fromRaycastResult result: ARRaycastResult) -> AnchorEntity {
-        
+
         let circle = createSphere()
         let planeAnchor = AnchorEntity()
         planeAnchor.addChild(circle)
-       
+
         return planeAnchor
     }
-    static  func createBox() -> ModelEntity{
+
+    static func createBox() -> ModelEntity {
         let box = MeshResource.generateBox(size: 0.08) // Generate mesh
         let boxMaterial = SimpleMaterial(color: .blue, isMetallic: true)
         let boxEntity = ModelEntity(mesh: box, materials: [boxMaterial])
@@ -45,9 +50,12 @@ class GeometryUtils {
         let boxEntity = ModelEntity(mesh: box, materials: [boxMaterial])
         return boxEntity
     }
-    static  func placeBox(box:ModelEntity,at position: SIMD3<Float>)-> AnchorEntity{
+
+    static func placeBox(box: ModelEntity, at position: SIMD3<Float>) -> AnchorEntity {
         let boxAnchor = AnchorEntity(world: position)
         boxAnchor.addChild(box)
-       return boxAnchor
+        return boxAnchor
     }
+
+    #endif
 }

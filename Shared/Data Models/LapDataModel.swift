@@ -9,7 +9,9 @@ import Foundation
 import Combine
 import RealityKit
 import SwiftUI
+#if !os(macOS)
 import ARKit
+#endif
 
 final class LapDataModel: ObservableObject {
 
@@ -33,19 +35,15 @@ final class LapDataModel: ObservableObject {
     var objects: [ObjectInRace] = []
 
     init() {
-        // load the fastest lap
-        //loadFastestLap()
-
         // Create the 3D view
         arView = ARView(frame: .zero)
-
 
         // • The reference track, positioned in Reality Composer to match the API coordinated
         let carScene = try! COTA.loadTrack()
 
         // Hidding the reference track
-        let myTrack = carScene.track3!
-        myTrack.isEnabled = false
+        let trackOfReference = carScene.track3!
+        trackOfReference.isEnabled = false
 
         // • Loading the nice track from the usdc file
         let myTrackTransformed = try! Entity.load(named: "1960Final")
@@ -80,20 +78,19 @@ final class LapDataModel: ObservableObject {
 
         // Initially position the camera
         #if os(macOS)
-        cameraEntity.look(at: myTrack.position, from: [0, 50, 0], relativeTo: nil)
+        cameraEntity.look(at: trackOfReference.position, from: [0, 50, 0], relativeTo: nil)
         #endif
 
         // Run the car
-        mainCar = ObjectInRace(entity: myCar, camera: cameraEntity, referenceEntityTransform: myTrackTransformed, referenceEntity: myTrack)
+        mainCar = ObjectInRace(entity: myCar, camera: cameraEntity, referenceEntityTransform: myTrackTransformed, referenceEntity: trackOfReference)
 
-        secondCar = ObjectInRace(entity: fastestCar, camera: nil, referenceEntityTransform: myTrackTransformed, referenceEntity: myTrack)
-        
-        
+        secondCar = ObjectInRace(entity: fastestCar, camera: nil, referenceEntityTransform: myTrackTransformed, referenceEntity: trackOfReference)
+
+        #if !os(macOS)
         let container = createBox(size: 0.4)
         placeBox(box: container, at: SIMD3(x: 0, y: 0, z: 0))
         container.addChild(myTrackTransformed)
         container.generateCollisionShapes(recursive: true)
-        #if !os(macOS)
         arView.installGestures([.all], for: container).forEach {
             $0.addTarget(self, action: #selector(handleModelGesture))
         }
@@ -109,7 +106,11 @@ final class LapDataModel: ObservableObject {
         #endif
         
         let trackAnchor = AnchorEntity(world: .zero)
+        #if !os(macOS)
         trackAnchor.addChild(container)
+        #else
+        trackAnchor.addChild(myTrackTransformed)
+        #endif
         
         #if !targetEnvironment(simulator) && !os(macOS)
         arView.addCoaching()
@@ -156,9 +157,10 @@ final class LapDataModel: ObservableObject {
     }
     
     var gestureStartLocation:SIMD3<Float>?
-    
-    @objc func handleModelGesture(_ sender:Any){
-        switch sender{
+
+    #if !os(macOS)
+    @objc func handleModelGesture(_ sender: Any) {
+        switch sender {
         case let rotation as EntityRotationGestureRecognizer:
             print("Rotation and name:\(rotation.entity!.name)")
 //            rotation.isEnabled = false
@@ -200,7 +202,8 @@ final class LapDataModel: ObservableObject {
             addCircle(raycastResult: result)
         }
     }
-    
+
+
     private var circles: [Entity] = []
     private func raycastResult(fromLocation location: CGPoint) -> CollisionCastHit? {
         // let query = arView.makeRaycastQuery(from: location,
@@ -231,14 +234,16 @@ final class LapDataModel: ObservableObject {
         circles.append(circleNode)
         nodesUpdated()
     }
-    
-    
+
+
     private func nodesUpdated() {
         if circles.count == 2 {
             let distance = GeometryUtils.calculateDistance(firstNode: circles[0], secondNode: circles[1])
             print("distance = \(distance)")
         }
     }
+
+    #endif
 
     func load(session: Session) {
         objects.removeAll()

@@ -29,6 +29,7 @@ class ObjectInRace {
         self.cameraEntity = camera
         self.referenceEntityTransform = referenceEntityTransform
         self.referenceEntity = referenceEntity
+        print("TEST-referenceEntityTransform: \(referenceEntityTransform)")
     }
 
     func reset() {
@@ -39,12 +40,15 @@ class ObjectInRace {
     func update() -> ParticipantViewData? {
         guard AppModel.shared.appState == .playing, !self.positionList.isEmpty, let coneEntity = coneEntity else { return nil }
 
+        print("TEST-mainEntity.transform B: \(mainEntity.transform)")
         let cp = self.positionList[self.currentFrame]
         mainEntity.position = SIMD3<Float>([cp.mWorldposy, cp.mWorldposz, cp.mWorldposx] / 1960)
         mainEntity.transform.rotation = Transform(pitch: cp.mPitch, yaw: cp.mYaw, roll: cp.mRoll).rotation
 
+        print("TEST-mainEntity.transform C: \(mainEntity.transform)")
         // converting the API coordinates to match the visible track
         mainEntity.transform = referenceEntityTransform.convert(transform: mainEntity.transform, to: referenceEntity)
+        print("TEST-mainEntity.transform L: \(mainEntity.transform)")
 
         #if os(macOS)
         cameraEntity?.look(at: mainEntity.position, from: [0.1, 0.1, 0], relativeTo: nil)
