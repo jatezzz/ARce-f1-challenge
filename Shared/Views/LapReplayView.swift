@@ -32,9 +32,16 @@ struct LapReplayView: View {
     @State var sliderValue: Double = 0
 
     @State private var isAppearing: Bool = false
-
+    @State private var showingAlert = false
+    struct ARVariables{
+      static var arView: ARView!
+    }
+    
     var body: some View {
         ZStack {
+          
+           
+            
             ARViewContainer()
                 .ignoresSafeArea()
             
@@ -90,8 +97,36 @@ struct LapReplayView: View {
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-
+                    
+                    
                     VStack {
+                        VStack(alignment: .center, spacing: 10) {
+                            HStack(alignment: .top){
+                                Button {
+                                    LapDataModel.shared.arView.snapshot(saveToHDR: false) { (image) in
+                                      let compressedImage = UIImage(data: (image?.pngData())!)
+                                      UIImageWriteToSavedPhotosAlbum(compressedImage!, nil, nil, nil)
+                                        showingAlert = true
+                                    }
+                                  } label: {
+                                    Image(systemName: "camera")
+                                          .resizable()
+                                          .scaledToFill()
+                                          .foregroundColor(.black)
+                                          .frame(width: 20, height: 20)
+                                  }
+                                  .alert("ScreenShot taken", isPresented: $showingAlert) {
+                                             Button("OK", role: .cancel) { }
+                                         }
+                                  .padding()
+                                  .background(.gray.opacity(0.6))
+                                  .cornerRadius(15)
+                                  .fadeInAnimation(isAnimating: isAppearing)
+                                  .onAppear {
+                                      isAppearing = true
+                                }
+                            }
+                        }
                         HStack{
                             OverlayButtonsView(captureSelected: $captureSelected, weatherSelected: $weatherSelected, commentsSelected: $commentsSelected, timeSelected: $timeSelected)
                             Spacer()
@@ -217,6 +252,9 @@ struct LapReplayView: View {
         }
     }
 }
+
+
+
 
 //struct ContentView_Previews: PreviewProvider {
 //    static var previews: some View {

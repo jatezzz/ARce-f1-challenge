@@ -19,7 +19,9 @@ struct OverlayButtonsView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: 10) {
-            OverlayButton(imageName: "camera", deselectAll: deselectAll, observable: $captureSelected)
+
+            
+//            OverlayButton(imageName: "camera", deselectAll: deselectAll, observable: $captureSelected)
             OverlayButton(imageName: "cloud.sun", deselectAll: deselectAll, observable: $weatherSelected)
             OverlayButton(imageName: "bubble.right", deselectAll: deselectAll, observable: $commentsSelected)
             OverlayButton(imageName: "digitalcrown.horizontal.arrow.counterclockwise", deselectAll: deselectAll, observable: $timeSelected)
