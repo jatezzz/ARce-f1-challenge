@@ -215,21 +215,21 @@ struct LapReplayView: View {
 
                 Menu {
                     Button {
-
+                        dataModel.zoomIn()
                     } label: {
                         Label("Zoom In", systemImage: "plus.magnifyingglass")
                     }
 
                     Button {
-
+                        dataModel.zoomOut()
                     } label: {
                         Label("Zoom Out", systemImage: "minus.magnifyingglass")
                     }
 
                     Button {
-
+                        dataModel.toogleManipulationFlag()
                     } label: {
-                        Label("Manipulate", systemImage: "rotate.3d")
+                        Label(dataModel.isManipulationEnabled ? "Cancel Manipulation" : "Manipulate", systemImage: "rotate.3d")
                     }
 
                     Button {

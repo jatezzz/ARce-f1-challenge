@@ -19,11 +19,14 @@ final class LapDataModel: ObservableObject {
 
     var subscriptions = Set<AnyCancellable>()
 
+    private var measurementPoints: [Entity] = []
+
     @Published var arView: ARView!
 
     @Published var mainParticipant: ParticipantViewData = ParticipantViewData()
     @Published var secondarticipant: ParticipantViewData = ParticipantViewData()
     @Published var isInMeasureFunctionality = false
+    @Published var isManipulationEnabled = false
 
     let mainCar: ObjectInRace
     let secondCar: ObjectInRace
@@ -37,7 +40,8 @@ final class LapDataModel: ObservableObject {
     private var cancellable = Set<AnyCancellable>()
 
     var objects: [ObjectInRace] = []
-    var container : ModelEntity!
+    var container: ModelEntity!
+    var gesturesSaved: [UIGestureRecognizer] = []
     init() {
         // Create the 3D view
         arView = ARView(frame: .zero)
@@ -87,9 +91,7 @@ final class LapDataModel: ObservableObject {
         placeBox(box: container!, at: SIMD3.zero)
         container!.addChild(historicalTrack)
         container!.generateCollisionShapes(recursive: true)
-        arView.installGestures([.scale, .rotation], for: container!).forEach {
-            $0.addTarget(self, action: #selector(handleModelGesture))
-        }
+
                 let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapOnARView))
                 arView.addGestureRecognizer(tapGesture)
         arView.debugOptions = [.showWorldOrigin, .showAnchorOrigins]
@@ -112,8 +114,6 @@ final class LapDataModel: ObservableObject {
         arView.scene.addAnchor(cameraAnchor)
         #endif
         
-//        var customCount = 0;
-
         sceneEventsUpdateSubscription = arView.scene.subscribe(to: SceneEvents.Update.self) { [weak self] _ in
             guard let self = self else {
                 return
@@ -127,13 +127,8 @@ final class LapDataModel: ObservableObject {
                     self.secondarticipant = viewData
                 }
             })
-//            container.transform.rotation = simd_quatf(angle: (.pi / 400)*Float(customCount), axis: [1, 0, 0])
-//            container.transform.translation = SIMD3<Float>([container.transform.translation.x, container.transform.translation.y+Float(customCount/1000), container.transform.translation.z])
-//            customCount += 1
         }
     }
-    
-//    mainEntity.transform = referenceEntityTransform.convert(transform: mainEntity.transform, to: referenceEntity)
 
     var customBool = false
     var savedTransform : Transform?
@@ -156,9 +151,6 @@ final class LapDataModel: ObservableObject {
 
     }
 
-
-    private var circles: [Entity] = []
-
     private func raycastResult(fromLocation location: CGPoint) -> CollisionCastHit? {
         guard let ray = self.arView.ray(through: location) else { return nil }
 
@@ -168,29 +160,29 @@ final class LapDataModel: ObservableObject {
 
     private func addCircle(raycastResult: CollisionCastHit) {
         let circleNode = GeometryUtils.createSphere()
-        if circles.count >= 2 {
-            for circle in circles {
+        if measurementPoints.count >= 2 {
+            for circle in measurementPoints {
                 circle.removeFromParent()
             }
-            circles.removeAll()
+            measurementPoints.removeAll()
         }
 
         container.addChild(circleNode)
         circleNode.setPosition(raycastResult.position, relativeTo: nil)
-        circles.append(circleNode)
+        measurementPoints.append(circleNode)
         nodesUpdated()
     }
 
 
     private func nodesUpdated() {
-        if circles.count == 2 {
-            let distance = GeometryUtils.calculateDistance(firstNode: circles[0], secondNode: circles[1])
+        if measurementPoints.count == 2 {
+            let distance = GeometryUtils.calculateDistance(firstNode: measurementPoints[0], secondNode: measurementPoints[1])
             let textModel = GeometryUtils.createText(text: "\(distance)m")
             textModel.transform.scale = [1, 1, 1] * 0.05
             textModel.transform.rotation = Transform(pitch: 0.0, yaw: Float.pi, roll: 0.0).rotation
-            textModel.setPosition(circles[1].position + [0, 0.01, 0], relativeTo: nil)
+            textModel.setPosition(measurementPoints[1].position + [0, 0.01, 0], relativeTo: nil)
             let parentText = Entity()
-            parentText.setPosition(circles[1].position + [0, 0.01, 0], relativeTo: nil)
+            parentText.setPosition(measurementPoints[1].position + [0, 0.01, 0], relativeTo: nil)
             arView.scene.subscribe(to: SceneEvents.Update.self) { [self] _ in
                         parentText.billboard(targetPosition: arView.cameraTransform.translation)
                     }
@@ -198,34 +190,54 @@ final class LapDataModel: ObservableObject {
 
             parentText.addChild(textModel, preservingWorldTransform: true)
             container.addChild(parentText)
-            circles.append(textModel)
+            measurementPoints.append(textModel)
             print("distance = \(distance)")
         }
     }
 
     func toogleMeasureFunctionality() {
         isInMeasureFunctionality = !isInMeasureFunctionality
-        if !isInMeasureFunctionality, !circles.isEmpty {
-            for circle in circles {
+        if !isInMeasureFunctionality, !measurementPoints.isEmpty {
+            for circle in measurementPoints {
                 circle.removeFromParent()
             }
-            circles.removeAll()
+            measurementPoints.removeAll()
         }
     }
 
-    #if !os(macOS)
-    @objc func handleModelGesture(_ sender: Any) {
-        switch sender {
-        case let rotation as EntityRotationGestureRecognizer:
-            print("Rotation and name:\(rotation.entity!.name)")
-        case let translation as EntityTranslationGestureRecognizer:
-            print("translation and nane \(translation.entity!.name)")
-        case let scale as EntityScaleGestureRecognizer:
-            print("In Scale")
-        default:
-            break
+    func toogleManipulationFlag() {
+        isManipulationEnabled = !isManipulationEnabled
+        if isManipulationEnabled {
+            arView.installGestures([.scale, .rotation], for: container!).forEach {
+                gesturesSaved.append($0)
+            }
+        } else {
+            gesturesSaved.forEach {
+                arView.removeGestureRecognizer($0)
+            }
+
         }
     }
+
+    func zoomIn() {
+
+    }
+
+    func zoomOut() {
+
+    }
+
+    #if !os(macOS)
+//    @objc func handleModelGesture(_ sender: Any) {
+//        switch sender {
+//        case let rotation as EntityRotationGestureRecognizer:
+//            rotation.isEnabled = isManipulationEnabled
+//        case let scale as EntityScaleGestureRecognizer:
+//            scale.isEnabled = isManipulationEnabled
+//        default:
+//            break
+//        }
+//    }
     #endif
 
     func load(session: Session) {
