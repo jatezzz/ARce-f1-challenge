@@ -14,6 +14,7 @@ struct LapReplayView: View {
     @StateObject var sessionsModel = SessionsDataModel.shared
 
     @State var presentingModal = false
+    @State var presentingSessionModal = false
     
     @State var session: Session
 
@@ -121,6 +122,12 @@ struct LapReplayView: View {
                 Menu {
                     Section {
                         Button {
+                            presentingSessionModal = true
+                        } label: {
+                            Text("Session Data")
+                        }
+
+                        Button {
                             presentingModal = true
                         } label: {
                             Text("Compare")
@@ -163,6 +170,9 @@ struct LapReplayView: View {
                 }
                 .sheet(isPresented: $presentingModal) {
                     DriversListView(presentedAsModal: self.$presentingModal, session: session, selectedSession: $compareSession)
+                }
+                .sheet(isPresented: $presentingSessionModal) {
+                    SessionDetailView(presentedAsModal: self.$presentingSessionModal)
                 }
                 .opacity(showOverlay ? 1 : 0)
             }
