@@ -84,9 +84,18 @@ struct Track: Codable {
     let name: String
     let longitude, latitude: Int
     let importantEvents: [ImportantEvents]
+    let weatherData: [WeatherForecast]?
 }
 
 struct ImportantEvents: Codable, Hashable {
     let date: Int
     let descrition: String
 }
+
+struct WeatherForecast: Codable {
+    let type: Float
+    let x: Float
+    let y: Float
+    let rainPercentage: Float
+}
+

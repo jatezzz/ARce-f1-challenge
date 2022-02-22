@@ -35,20 +35,7 @@ final class LapDataModel: ObservableObject {
     @Published var trackData: [Track] = []
     @Published var importantEvents: [ImportantEvents] = []
 
-    var weatherForecastList: [WeatherForecast] = [
-        WeatherForecast(type: 3,
-                        x: 0.5,
-                        y: 0.1,
-                        rainPercentage: 0.89),
-        WeatherForecast(type: 3,
-                        x: 0.5,
-                        y: -0.2,
-                        rainPercentage: 0.64),
-        WeatherForecast(type: 2,
-                        x: 0.1,
-                        y: -0.2,
-                        rainPercentage: 0.5)
-    ]
+    var weatherForecastList: [WeatherForecast] = []
 
     let mainCar: ObjectInRace
     let secondCar: ObjectInRace
@@ -168,19 +155,6 @@ final class LapDataModel: ObservableObject {
             self.weatherTextListModel.forEach { (weatherModel: Entity) in
                 weatherModel.billboard(targetPosition: self.arView.cameraTransform.translation)
             }
-        }
-
-        weatherForecastList.forEach { forecast in
-            let weatherText = Entity()
-            let entity: ModelEntity = GeometryUtils.createText(text: "Forecast Data\nType: \(forecast.type)\nRain percentage:\(forecast.rainPercentage)", color: .yellow)
-            entity.transform.scale = [1, 1, 1] * 0.05
-            entity.setPosition(SIMD3<Float>([0, 0, 0]), relativeTo: container)
-            entity.transform.rotation = Transform(pitch: 0.0, yaw: Float.pi, roll: 0.0).rotation
-            weatherText.setPosition(SIMD3<Float>([forecast.x, -0.05, forecast.y]), relativeTo: container)
-            weatherText.addChild(entity)
-            weatherText.isEnabled = false
-            self.container.addChild(weatherText)
-            self.weatherTextListModel.append(weatherText)
         }
     }
 
@@ -395,6 +369,35 @@ final class LapDataModel: ObservableObject {
                 .sink { completion in
                     print(completion)
                     self.importantEvents = self.trackData[0].importantEvents
+                    self.weatherForecastList = self.trackData[0].weatherData ?? [
+                        WeatherForecast(type: 3,
+                                        x: 0.5,
+                                        y: 0.1,
+                                        rainPercentage: 0.89),
+                        WeatherForecast(type: 3,
+                                        x: 0.5,
+                                        y: -0.2,
+                                        rainPercentage: 0.64),
+                        WeatherForecast(type: 2,
+                                        x: 0.1,
+                                        y: -0.2,
+                                        rainPercentage: 0.5)
+                    ]
+
+
+                    self.weatherForecastList.forEach { forecast in
+                        let weatherText = Entity()
+                        let entity: ModelEntity = GeometryUtils.createText(text: "Forecast Data\nType: \(forecast.type)\nRain percentage:\(forecast.rainPercentage)", color: .yellow)
+                        entity.transform.scale = [1, 1, 1] * 0.05
+                        entity.setPosition(SIMD3<Float>([0, 0, 0]), relativeTo: self.container)
+                        entity.transform.rotation = Transform(pitch: 0.0, yaw: Float.pi, roll: 0.0).rotation
+                        weatherText.setPosition(SIMD3<Float>([forecast.x, -0.05, forecast.y]), relativeTo: self.container)
+                        weatherText.addChild(entity)
+                        weatherText.isEnabled = false
+                        self.container.addChild(weatherText)
+                        self.weatherTextListModel.append(weatherText)
+                    }
+
                     switch completion {
                     case .finished: () // done, nothing to do
                     case let .failure(error): AppModel.shared.appState = .error(msg: error.localizedDescription)
@@ -420,11 +423,4 @@ final class LapDataModel: ObservableObject {
             model.winnerFrameQuantity = minQuantity
         })
     }
-}
-
-struct WeatherForecast {
-    let type: Int
-    let x: Float
-    let y: Float
-    let rainPercentage: Float
 }
