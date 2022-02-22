@@ -52,9 +52,9 @@ class GeometryUtils {
         return boxEntity
     }
 
-    static func createText(text: String) -> ModelEntity {
+    static func createText(text: String, color: UIColor = .blue) -> ModelEntity {
         let box = MeshResource.generateText(text, extrusionDepth: 0.05, font: .systemFont(ofSize: 0.2), containerFrame: CGRect(), alignment: .left, lineBreakMode: .byWordWrapping) // Generate mesh
-        let boxMaterial = SimpleMaterial(color: .blue, isMetallic: true)
+        let boxMaterial = SimpleMaterial(color: color, isMetallic: true)
         let boxEntity = ModelEntity(mesh: box, materials: [boxMaterial])
         boxEntity.generateCollisionShapes(recursive: true)
         return boxEntity

@@ -21,10 +21,10 @@ struct OverlayButtonsView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 10) {
             OverlayButton(imageName: "camera", deselectAll: deselectAll, action: captureAction, observable: $captureSelected)
-                .alert("ScreenShot taken", isPresented: $showAlert) {
-                    Button("OK", role: .cancel) { }
-                }
-            OverlayButton(imageName: "cloud.sun", deselectAll: deselectAll, action: {}, observable: $weatherSelected)
+                    .alert("ScreenShot taken", isPresented: $showAlert) {
+                        Button("OK", role: .cancel) {}
+                    }
+            OverlayButton(imageName: "cloud.sun", deselectAll: deselectAll, action: toggleWeather, observable: $weatherSelected)
             OverlayButton(imageName: "digitalcrown.horizontal.arrow.counterclockwise", deselectAll: deselectAll, action: {}, observable: $timeSelected)
         }
     }
@@ -42,6 +42,10 @@ struct OverlayButtonsView: View {
             UIImageWriteToSavedPhotosAlbum(compressedImage!, nil, nil, nil)
             showAlert = true
         }
+    }
+
+    func toggleWeather() {
+        LapDataModel.shared.toggleWeather()
     }
 }
 

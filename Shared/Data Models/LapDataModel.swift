@@ -30,9 +30,25 @@ final class LapDataModel: ObservableObject {
     @Published var isManipulationEnabled = false
     @Published var isRecordingEnabled = false
     @Published var isPointerEnabled = false
+    var isWeatherEnabled = false
 
     @Published var trackData: [Track] = []
     @Published var importantEvents: [ImportantEvents] = []
+
+    var weatherForecastList: [WeatherForecast] = [
+        WeatherForecast(type: 3,
+                        x: 0.5,
+                        y: 0.1,
+                        rainPercentage: 0.89),
+        WeatherForecast(type: 3,
+                        x: 0.5,
+                        y: -0.2,
+                        rainPercentage: 0.64),
+        WeatherForecast(type: 2,
+                        x: 0.1,
+                        y: -0.2,
+                        rainPercentage: 0.5)
+    ]
 
     let mainCar: ObjectInRace
     let secondCar: ObjectInRace
@@ -55,6 +71,7 @@ final class LapDataModel: ObservableObject {
 
     var winnerText = [""]
     let parentText = Entity()
+    var weatherTextListModel: [Entity] = []
 
     init() {
         // Create the 3D view
@@ -87,9 +104,6 @@ final class LapDataModel: ObservableObject {
 
         myCar.transform.scale = [1, 1, 1] * 0.0008
 
-        // Initially position the camera
-
-        // Run the car
 
         let winnerEntity: ModelEntity = GeometryUtils.createText(text: "")
 
@@ -151,6 +165,22 @@ final class LapDataModel: ObservableObject {
                 }
             })
             self.parentText.billboard(targetPosition: self.arView.cameraTransform.translation)
+            self.weatherTextListModel.forEach { (weatherModel: Entity) in
+                weatherModel.billboard(targetPosition: self.arView.cameraTransform.translation)
+            }
+        }
+
+        weatherForecastList.forEach { forecast in
+            let weatherText = Entity()
+            let entity: ModelEntity = GeometryUtils.createText(text: "Forecast Data\nType: \(forecast.type)\nRain percentage:\(forecast.rainPercentage)", color: .yellow)
+            entity.transform.scale = [1, 1, 1] * 0.05
+            entity.setPosition(SIMD3<Float>([0, 0, 0]), relativeTo: container)
+            entity.transform.rotation = Transform(pitch: 0.0, yaw: Float.pi, roll: 0.0).rotation
+            weatherText.setPosition(SIMD3<Float>([forecast.x, -0.05, forecast.y]), relativeTo: container)
+            weatherText.addChild(entity)
+            weatherText.isEnabled = false
+            self.container.addChild(weatherText)
+            self.weatherTextListModel.append(weatherText)
         }
     }
 
@@ -268,6 +298,13 @@ final class LapDataModel: ObservableObject {
         isRecordingEnabled = !isRecordingEnabled
     }
 
+    func toggleWeather() {
+        isWeatherEnabled = !isWeatherEnabled
+        weatherTextListModel.forEach { (weatherModel: Entity) in
+            weatherModel.isEnabled = isWeatherEnabled
+        }
+    }
+
     func tooglePointerFlag() {
         isPointerEnabled = !isPointerEnabled
         if !isPointerEnabled, !pointerPoints.isEmpty {
@@ -383,4 +420,12 @@ final class LapDataModel: ObservableObject {
             model.winnerFrameQuantity = minQuantity
         })
     }
+}
+
+
+struct WeatherForecast {
+    let type: Int
+    let x: Float
+    let y: Float
+    let rainPercentage: Float
 }
