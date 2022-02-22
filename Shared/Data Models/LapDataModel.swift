@@ -25,7 +25,7 @@ final class LapDataModel: ObservableObject {
     @Published var arView: ARView!
 
     @Published var mainParticipant: ParticipantViewData = ParticipantViewData()
-    @Published var secondarticipant: ParticipantViewData = ParticipantViewData()
+    @Published var secondParticipant: ParticipantViewData = ParticipantViewData()
     @Published var isInMeasureFunctionality = false
     @Published var isManipulationEnabled = false
     @Published var isRecordingEnabled = false
@@ -35,15 +35,13 @@ final class LapDataModel: ObservableObject {
     let secondCar: ObjectInRace
     private var fastestLapPositions: [Motion] = []
 
-    let temporalParent = Entity()
-
     private var sceneEventsUpdateSubscription: Cancellable!
     private var carAnchor: AnchorEntity?
 
     private var cancellable = Set<AnyCancellable>()
 
     var objects: [ObjectInRace] = []
-    var container: ModelEntity!
+    var container: ModelEntity = ModelEntity()
     var gesturesSaved: [UIGestureRecognizer] = []
 
     var factor: Float = 1
@@ -86,9 +84,6 @@ final class LapDataModel: ObservableObject {
         trackingCone.isEnabled = false
 
         // Initially position the camera
-        #if os(macOS)
-        cameraEntity.look(at: trackDefaultOnMap.position, from: [0, 50, 0], relativeTo: nil)
-        #endif
 
         // Run the car
         mainCar = ObjectInRace(referenceModel: myCar, camera: cameraEntity, container: historicalTrack, referenceCone: trackingCone)
@@ -97,20 +92,21 @@ final class LapDataModel: ObservableObject {
 
         #if !os(macOS)
 
-        container = ModelEntity()
-        placeBox(box: container!, at: SIMD3.zero)
-        container!.addChild(historicalTrack)
-        container!.generateCollisionShapes(recursive: true)
+        placeEntity(with: container, at: SIMD3.zero)
+        container.addChild(historicalTrack)
+        container.generateCollisionShapes(recursive: true)
 
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapOnARView))
         arView.addGestureRecognizer(tapGesture)
         arView.debugOptions = [.showWorldOrigin, .showAnchorOrigins]
         #endif
 
+        #if os(macOS)
+        cameraEntity.look(at: trackDefaultOnMap.position, from: [0, 50, 0], relativeTo: nil)
+        #endif
         let trackAnchor = AnchorEntity(world: .zero)
         #if !os(macOS)
-        trackAnchor.addChild(container!)
-        trackAnchor.addChild(temporalParent)
+        trackAnchor.addChild(container)
         #else
         trackAnchor.addChild(historicalTrack)
         #endif
@@ -134,7 +130,7 @@ final class LapDataModel: ObservableObject {
                     self.mainParticipant = viewData
                 }
                 if let viewData = viewData, $0 == 1 {
-                    self.secondarticipant = viewData
+                    self.secondParticipant = viewData
                 }
             })
         }
@@ -150,8 +146,8 @@ final class LapDataModel: ObservableObject {
             return
         }
         if isRecordingEnabled {
-            if customBool, let savedTransform = savedTransform, let container = container {
-                self.container?.transform.translation = container.transform.translation - (savedTransform.translation - arView.cameraTransform.translation)
+            if customBool, let savedTransform = savedTransform {
+                self.container.transform.translation = container.transform.translation - (savedTransform.translation - arView.cameraTransform.translation)
             }
             savedTransform = arView.cameraTransform
             customBool = !customBool
@@ -239,7 +235,7 @@ final class LapDataModel: ObservableObject {
     func toogleManipulationFlag() {
         isManipulationEnabled = !isManipulationEnabled
         if isManipulationEnabled {
-            arView.installGestures([.scale, .rotation], for: container!).forEach {
+            arView.installGestures([.scale, .rotation], for: container).forEach {
                 gesturesSaved.append($0)
             }
         } else {
@@ -262,12 +258,12 @@ final class LapDataModel: ObservableObject {
 
     func zoomIn() {
         factor += increment
-        container!.transform.scale = [1, 1, 1] * factor
+        container.transform.scale = [1, 1, 1] * factor
     }
 
     func zoomOut() {
         factor -= increment
-        container!.transform.scale = [1, 1, 1] * factor
+        container.transform.scale = [1, 1, 1] * factor
     }
 
     func load(session: Session) {
@@ -275,16 +271,9 @@ final class LapDataModel: ObservableObject {
         loadSessionIntoModel(session: session, model: mainCar)
     }
 
-    func createBox(size: Float = 0.08) -> ModelEntity {
-        let box = MeshResource.generateBox(size: size) // Generate mesh
-        let boxMaterial = SimpleMaterial(color: .blue, isMetallic: true)
-        let boxEntity = ModelEntity(mesh: box, materials: [boxMaterial])
-        return boxEntity
-    }
-
-    func placeBox(box: ModelEntity, at position: SIMD3<Float>) {
+    func placeEntity(with: ModelEntity, at position: SIMD3<Float>) {
         let boxAnchor = AnchorEntity(world: position)
-        boxAnchor.addChild(box)
+        boxAnchor.addChild(with)
         arView.scene.addAnchor(boxAnchor)
     }
 
@@ -331,53 +320,5 @@ final class LapDataModel: ObservableObject {
             model.currentFrame = 0
             model.frameQuantity = minQuantity
         })
-    }
-}
-
-
-extension matrix_float4x4 {
-
-    var translation: SCNVector3 {
-        get {
-            return SCNVector3Make(columns.3.x, columns.3.y, columns.3.z)
-        }
-    }
-    // Retrieve euler angles from a quaternion matrix
-    var eulerAngles: SCNVector3 {
-        get {
-            // Get quaternions
-            let qw = sqrt(1 + self.columns.0.x + self.columns.1.y + self.columns.2.z) / 2.0
-            let qx = (self.columns.2.y - self.columns.1.z) / (qw * 4.0)
-            let qy = (self.columns.0.z - self.columns.2.x) / (qw * 4.0)
-            let qz = (self.columns.1.x - self.columns.0.y) / (qw * 4.0)
-
-            // Deduce euler angles
-            /// yaw (z-axis rotation)
-            let siny = +2.0 * (qw * qz + qx * qy)
-            let cosy = +1.0 - 2.0 * (qy * qy + qz * qz)
-            let yaw = atan2(siny, cosy)
-            // pitch (y-axis rotation)
-            let sinp = +2.0 * (qw * qy - qz * qx)
-            var pitch: Float
-            if abs(sinp) >= 1 {
-                pitch = copysign(Float.pi / 2, sinp)
-            } else {
-                pitch = asin(sinp)
-            }
-            /// roll (x-axis rotation)
-            let sinr = +2.0 * (qw * qx + qy * qz)
-            let cosr = +1.0 - 2.0 * (qx * qx + qy * qy)
-            let roll = atan2(sinr, cosr)
-
-            /// return array containing ypr values
-            return SCNVector3(yaw, pitch, roll)
-        }
-    }
-}
-
-extension Entity {
-    /// Billboards the entity to the targetPosition which should be provided in world space.
-    func billboard(targetPosition: SIMD3<Float>) {
-        look(at: targetPosition, from: position(relativeTo: nil), relativeTo: nil)
     }
 }

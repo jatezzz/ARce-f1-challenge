@@ -79,7 +79,7 @@ struct LapReplayView: View {
                                     .frame(alignment: .leading)
                                 Spacer()
                                 if let _ = compareSession {
-                                    DataBubbleView(currentData: dataModel.secondarticipant, presentingEngineInfo: $presentingEngineInfo, presentingLapInfo: $presentingLapInfo)
+                                    DataBubbleView(currentData: dataModel.secondParticipant, presentingEngineInfo: $presentingEngineInfo, presentingLapInfo: $presentingLapInfo)
                                         .frame(alignment: .trailing)
                                 }
                             }
@@ -228,6 +228,7 @@ struct LapReplayView: View {
                     Section {
                         Button{
                             isMeasureActive = !isMeasureActive
+                            dataModel.toogleManipulationFlag()
                         } label: {
                             Label("Manipulate", systemImage: isMeasureActive ? "checkmark.circle.fill" : "circle")
                         }
