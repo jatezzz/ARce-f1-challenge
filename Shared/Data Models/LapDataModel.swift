@@ -45,6 +45,13 @@ final class LapDataModel: ObservableObject {
     var objects: [ObjectInRace] = []
     var container: ModelEntity!
     var gesturesSaved: [UIGestureRecognizer] = []
+
+    var factor: Float = 1
+    var increment: Float = 0.3
+
+    var customBool = false
+    var savedTransform: Transform?
+
     init() {
         // Create the 3D view
         arView = ARView(frame: .zero)
@@ -90,7 +97,7 @@ final class LapDataModel: ObservableObject {
 
         #if !os(macOS)
 
-        container = createBox(size: 0.001)
+        container = ModelEntity()
         placeBox(box: container!, at: SIMD3.zero)
         container!.addChild(historicalTrack)
         container!.generateCollisionShapes(recursive: true)
@@ -132,9 +139,6 @@ final class LapDataModel: ObservableObject {
             })
         }
     }
-
-    var customBool = false
-    var savedTransform : Transform?
 
     @objc func tapOnARView(sender: UITapGestureRecognizer) {
         guard let arView = arView else { return }
@@ -202,24 +206,24 @@ final class LapDataModel: ObservableObject {
 
 
     private func nodesUpdated() {
-        if measurementPoints.count == 2 {
-            let distance = GeometryUtils.calculateDistance(firstNode: measurementPoints[0], secondNode: measurementPoints[1])
-            let textModel = GeometryUtils.createText(text: "\(distance)m")
-            textModel.transform.scale = [1, 1, 1] * 0.05
-            textModel.transform.rotation = Transform(pitch: 0.0, yaw: Float.pi, roll: 0.0).rotation
-            textModel.setPosition(measurementPoints[1].position + [0, 0.01, 0], relativeTo: nil)
-            let parentText = Entity()
-            parentText.setPosition(measurementPoints[1].position + [0, 0.01, 0], relativeTo: nil)
-            arView.scene.subscribe(to: SceneEvents.Update.self) { [self] _ in
-                        parentText.billboard(targetPosition: arView.cameraTransform.translation)
-                    }
-                    .store(in: &subscriptions)
-
-            parentText.addChild(textModel, preservingWorldTransform: true)
-            container.addChild(parentText)
-            measurementPoints.append(textModel)
-            print("distance = \(distance)")
+        guard measurementPoints.count == 2 else {
+            return
         }
+        let distance = GeometryUtils.calculateDistance(firstNode: measurementPoints[0], secondNode: measurementPoints[1])
+        let textModel = GeometryUtils.createText(text: "\(distance)m")
+        textModel.transform.scale = [1, 1, 1] * 0.05
+        textModel.transform.rotation = Transform(pitch: 0.0, yaw: Float.pi, roll: 0.0).rotation
+        textModel.setPosition(measurementPoints[1].position + [0, 0.01, 0], relativeTo: nil)
+        let parentText = Entity()
+        parentText.setPosition(measurementPoints[1].position + [0, 0.01, 0], relativeTo: nil)
+        arView.scene.subscribe(to: SceneEvents.Update.self) { [self] _ in
+                    parentText.billboard(targetPosition: arView.cameraTransform.translation)
+                }
+                .store(in: &subscriptions)
+
+        parentText.addChild(textModel, preservingWorldTransform: true)
+        container.addChild(parentText)
+        measurementPoints.append(textModel)
     }
 
     func toogleMeasureFunctionality() {
@@ -255,9 +259,6 @@ final class LapDataModel: ObservableObject {
             pointerPoints.removeAll()
         }
     }
-
-    var factor: Float = 1
-    var increment: Float = 0.3
 
     func zoomIn() {
         factor += increment
@@ -335,10 +336,7 @@ final class LapDataModel: ObservableObject {
 
 
 extension matrix_float4x4 {
-    // Function to convert rad to deg
-    func radiansToDegress(radians: Float32) -> Float32 {
-        return radians
-    }
+
     var translation: SCNVector3 {
         get {
             return SCNVector3Make(columns.3.x, columns.3.y, columns.3.z)
@@ -357,19 +355,19 @@ extension matrix_float4x4 {
             /// yaw (z-axis rotation)
             let siny = +2.0 * (qw * qz + qx * qy)
             let cosy = +1.0 - 2.0 * (qy * qy + qz * qz)
-            let yaw = radiansToDegress(radians:atan2(siny, cosy))
+            let yaw = atan2(siny, cosy)
             // pitch (y-axis rotation)
             let sinp = +2.0 * (qw * qy - qz * qx)
             var pitch: Float
             if abs(sinp) >= 1 {
-                pitch = radiansToDegress(radians:copysign(Float.pi / 2, sinp))
+                pitch = copysign(Float.pi / 2, sinp)
             } else {
-                pitch = radiansToDegress(radians: asin(sinp))
+                pitch = asin(sinp)
             }
             /// roll (x-axis rotation)
             let sinr = +2.0 * (qw * qx + qy * qz)
             let cosr = +1.0 - 2.0 * (qx * qx + qy * qy)
-            let roll = radiansToDegress(radians: atan2(sinr, cosr))
+            let roll = atan2(sinr, cosr)
 
             /// return array containing ypr values
             return SCNVector3(yaw, pitch, roll)
