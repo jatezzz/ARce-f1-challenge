@@ -77,6 +77,16 @@ struct Session: Codable, Identifiable, Hashable {
         case laps = "LAPS"
     }
 }
+//MARK: - Track data
 
+struct Track: Codable {
+    let trackId: String
+    let name: String
+    let longitude, latitude: Int
+    let importantEvents: [ImportantEvents]
+}
 
-
+struct ImportantEvents: Codable, Hashable {
+    let date: Int
+    let descrition: String
+}

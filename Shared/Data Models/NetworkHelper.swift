@@ -13,13 +13,6 @@ import Combine
 final class NetworkHelper {
     static var shared = NetworkHelper()
 
-    func fetchPositionData(for rawUrl: String) -> AnyPublisher<[Motion], Error> {
-        URLSession.shared.dataTaskPublisher(for: URL(string: rawUrl)!)
-                .map(\.data)
-                .decode(type: LapData.self, decoder: JSONDecoder())
-                .eraseToAnyPublisher()
-    }
-
     func fetchPositionData(for session: Session) -> AnyPublisher<[Motion], Error>{
         (1...session.laps)
                 .map { URL(string: "https://apigw.withoracle.cloud/formulaai/carData/\(session.mSessionid)/\($0)")! }
@@ -39,6 +32,16 @@ final class NetworkHelper {
                 .dataTaskPublisher(for: url)
                 .map(\.data)
                 .decode(type: SessionsData.self, decoder: JSONDecoder())
+                .eraseToAnyPublisher()
+    }
+
+    func fetchTrackIdData(for trackId: String) -> AnyPublisher<[Track], Error> {
+        URLSession.shared.dataTaskPublisher(for: URL(string: "http://144.22.216.170:3000/trackid/\(trackId.replacingOccurrences(of: " ", with: "%20"))")!)
+                .map({
+                    print($0.data)
+                    return $0.data
+                })
+                .decode(type: [Track].self, decoder: JSONDecoder())
                 .eraseToAnyPublisher()
     }
 

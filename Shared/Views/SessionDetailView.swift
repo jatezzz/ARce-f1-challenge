@@ -8,17 +8,20 @@
 import SwiftUI
 
 struct SessionDetailView: View {
-
+    @StateObject var dataModel = LapDataModel.shared
     @Binding var presentedAsModal: Bool
 
     var body: some View {
-        Text("Title")
+        Text(dataModel.trackData.isEmpty ? "" : "\(dataModel.trackData[0].trackId)")
             .font(.title)
             .frame(alignment: .leading)
             .padding()
         Form {
-            Section(header: Text("Section header")) {
-                Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+            Section(header: Text("Important Events")) {
+                ForEach(dataModel.importantEvents, id: \.self) {
+                    Text($0.descrition)
+                }
+
             }
         }
 

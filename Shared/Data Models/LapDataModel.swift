@@ -31,6 +31,9 @@ final class LapDataModel: ObservableObject {
     @Published var isRecordingEnabled = false
     @Published var isPointerEnabled = false
 
+    @Published var trackData: [Track] = []
+    @Published var importantEvents: [ImportantEvents] = []
+
     let mainCar: ObjectInRace
     let secondCar: ObjectInRace
     private var fastestLapPositions: [Motion] = []
@@ -284,6 +287,7 @@ final class LapDataModel: ObservableObject {
     func load(session: Session) {
         objects.removeAll()
         loadSessionIntoModel(session: session, model: mainCar)
+        loadTrackData(session: session)
     }
 
     func placeEntity(with: ModelEntity, at position: SIMD3<Float>) {
@@ -336,6 +340,25 @@ final class LapDataModel: ObservableObject {
                     if model.positionList.count > 0 {
                         AppModel.shared.appState = .playing // we start playing after the first lap is loaded, the rest are coming in the background
                     }
+
+                    print("*")
+                }
+                .store(in: &self.cancellable)
+    }
+
+    func loadTrackData(session: Session) {
+
+        NetworkHelper.shared.fetchTrackIdData(for: session.trackId)
+                .receive(on: RunLoop.main)
+                .sink { completion in
+                    print(completion)
+                    self.importantEvents = self.trackData[0].importantEvents
+                    switch completion {
+                    case .finished: () // done, nothing to do
+                    case let .failure(error): AppModel.shared.appState = .error(msg: error.localizedDescription)
+                    }
+                } receiveValue: { items in
+                    self.trackData.append(contentsOf: items)
 
                     print("*")
                 }
