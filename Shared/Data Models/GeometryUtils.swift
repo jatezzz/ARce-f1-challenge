@@ -45,9 +45,9 @@ class GeometryUtils {
         return boxEntity
     }
 
-    static func createSphere() -> ModelEntity {
+    static func createSphere(color: UIColor = .blue) -> ModelEntity {
         let box = MeshResource.generateSphere(radius: 0.005) // Generate mesh
-        let boxMaterial = SimpleMaterial(color: .blue, isMetallic: true)
+        let boxMaterial = SimpleMaterial(color: color, isMetallic: true)
         let boxEntity = ModelEntity(mesh: box, materials: [boxMaterial])
         return boxEntity
     }

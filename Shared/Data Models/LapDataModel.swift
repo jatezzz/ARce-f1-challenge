@@ -20,6 +20,7 @@ final class LapDataModel: ObservableObject {
     var subscriptions = Set<AnyCancellable>()
 
     private var measurementPoints: [Entity] = []
+    private var pointerPoints: [Entity] = []
 
     @Published var arView: ARView!
 
@@ -27,11 +28,13 @@ final class LapDataModel: ObservableObject {
     @Published var secondarticipant: ParticipantViewData = ParticipantViewData()
     @Published var isInMeasureFunctionality = false
     @Published var isManipulationEnabled = false
+    @Published var isRecordingEnabled = false
+    @Published var isPointerEnabled = false
 
     let mainCar: ObjectInRace
     let secondCar: ObjectInRace
     private var fastestLapPositions: [Motion] = []
-    
+
     let temporalParent = Entity()
 
     private var sceneEventsUpdateSubscription: Cancellable!
@@ -92,8 +95,8 @@ final class LapDataModel: ObservableObject {
         container!.addChild(historicalTrack)
         container!.generateCollisionShapes(recursive: true)
 
-                let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapOnARView))
-                arView.addGestureRecognizer(tapGesture)
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapOnARView))
+        arView.addGestureRecognizer(tapGesture)
         arView.debugOptions = [.showWorldOrigin, .showAnchorOrigins]
         #endif
 
@@ -113,7 +116,7 @@ final class LapDataModel: ObservableObject {
         #if os(macOS)
         arView.scene.addAnchor(cameraAnchor)
         #endif
-        
+
         sceneEventsUpdateSubscription = arView.scene.subscribe(to: SceneEvents.Update.self) { [weak self] _ in
             guard let self = self else {
                 return
@@ -142,12 +145,22 @@ final class LapDataModel: ObservableObject {
             }
             return
         }
-        if customBool, let savedTransform = savedTransform, let container = container {
-            self.container?.transform.translation = container.transform.translation - (savedTransform.translation - arView.cameraTransform.translation)
-
+        if isRecordingEnabled {
+            if customBool, let savedTransform = savedTransform, let container = container {
+                self.container?.transform.translation = container.transform.translation - (savedTransform.translation - arView.cameraTransform.translation)
+            }
+            savedTransform = arView.cameraTransform
+            customBool = !customBool
+            return
         }
-        savedTransform = arView.cameraTransform
-        customBool = !customBool
+
+        if isPointerEnabled {
+            let location = sender.location(in: arView)
+            if let result = raycastResult(fromLocation: location) {
+                addTemporalCircle(raycastResult: result)
+            }
+            return
+        }
 
     }
 
@@ -171,6 +184,20 @@ final class LapDataModel: ObservableObject {
         circleNode.setPosition(raycastResult.position, relativeTo: nil)
         measurementPoints.append(circleNode)
         nodesUpdated()
+    }
+
+    private func addTemporalCircle(raycastResult: CollisionCastHit) {
+        let circleNode = GeometryUtils.createSphere(color: UIColor(red: 1, green: 0, blue: 0, alpha: 0.6))
+        if pointerPoints.count >= 3 {
+            for circle in pointerPoints {
+                circle.removeFromParent()
+            }
+            pointerPoints.removeAll()
+        }
+
+        container.addChild(circleNode)
+        circleNode.setPosition(raycastResult.position, relativeTo: nil)
+        pointerPoints.append(circleNode)
     }
 
 
@@ -216,6 +243,16 @@ final class LapDataModel: ObservableObject {
                 arView.removeGestureRecognizer($0)
             }
 
+        }
+    }
+
+    func tooglePointerFlag() {
+        isPointerEnabled = !isPointerEnabled
+        if !isPointerEnabled, !pointerPoints.isEmpty {
+            for circle in pointerPoints {
+                circle.removeFromParent()
+            }
+            pointerPoints.removeAll()
         }
     }
 
@@ -303,9 +340,9 @@ extension matrix_float4x4 {
         return radians
     }
     var translation: SCNVector3 {
-       get {
-           return SCNVector3Make(columns.3.x, columns.3.y, columns.3.z)
-       }
+        get {
+            return SCNVector3Make(columns.3.x, columns.3.y, columns.3.z)
+        }
     }
     // Retrieve euler angles from a quaternion matrix
     var eulerAngles: SCNVector3 {

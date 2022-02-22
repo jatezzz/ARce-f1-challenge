@@ -237,7 +237,11 @@ struct LapReplayView: View {
                     } label: {
                         Label("Record", systemImage: "record.circle")
                     }
-
+                    Button {
+                        dataModel.tooglePointerFlag()
+                    } label: {
+                        Label(dataModel.isPointerEnabled ? "Remove Pointer" : "Add Pointer", systemImage: "record.circle")
+                    }
                     Button {
                         dataModel.toogleMeasureFunctionality()
                     } label: {
