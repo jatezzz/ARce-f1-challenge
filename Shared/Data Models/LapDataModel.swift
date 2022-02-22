@@ -114,7 +114,7 @@ final class LapDataModel: ObservableObject {
 
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapOnARView))
         arView.addGestureRecognizer(tapGesture)
-        arView.debugOptions = [.showWorldOrigin, .showAnchorOrigins]
+//        arView.debugOptions = [.showWorldOrigin, .showAnchorOrigins]
         #endif
 
         #if os(macOS)
@@ -264,6 +264,10 @@ final class LapDataModel: ObservableObject {
         }
     }
 
+    func toogleRecordingFlag() {
+        isRecordingEnabled = !isRecordingEnabled
+    }
+
     func tooglePointerFlag() {
         isPointerEnabled = !isPointerEnabled
         if !isPointerEnabled, !pointerPoints.isEmpty {
@@ -304,6 +308,7 @@ final class LapDataModel: ObservableObject {
         AppModel.shared.appState = .loadingTrack
         self.cancellable = []
         model.reset()
+        model.sessionId = session.mSessionid
         self.winnerText = []
         self.parentText.children.forEach({ $0.removeFromParent() })
 

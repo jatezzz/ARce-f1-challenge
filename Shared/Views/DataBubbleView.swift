@@ -20,6 +20,8 @@ struct DataBubbleView: View {
     var body: some View {
         VStack {
             Text("\(currentData.name)")
+            Text("Id: ...\(String(currentData.sessionId.suffix(6)))")
+                    .font(.caption)
             if presentingEngineInfo {
                 renderTopBubble()
             }

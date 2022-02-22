@@ -23,6 +23,7 @@ struct LapReplayView: View {
     @State var presentingEngineInfo = true
     @State var presentingLapInfo = true
     @State var isMeasureActive = false
+    @State var isPointerActive = false
 
     @State var showOverlay = true
 
@@ -31,7 +32,7 @@ struct LapReplayView: View {
     @State var commentsSelected: Bool = false
     @State var timeSelected: Bool = false
 
-    @State var sliderValue: Double = 0
+    @State var sliderValue: Double = 10
 
     @State private var isAppearing: Bool = false
 
@@ -42,8 +43,6 @@ struct LapReplayView: View {
     var body: some View {
         ZStack {
           
-           
-            
             ARViewContainer()
                 .ignoresSafeArea()
             
@@ -90,8 +89,9 @@ struct LapReplayView: View {
                             VStack {
                                 Slider(value: $sliderValue, in: 0...20)
                                 Text("Current slider value: \(sliderValue, specifier: "%.2f")")
-                                    .foregroundColor(.white)
+                                        .foregroundColor(.white)
                             }
+                                    .padding([.leading, .trailing], 10)
                             .fadeInAnimation(isAnimating: isAppearing)
                             .onAppear {
                                 isAppearing = true
@@ -124,7 +124,7 @@ struct LapReplayView: View {
                         Button {
                             presentingSessionModal = true
                         } label: {
-                            Text("Session Data")
+                            Text("Track Info")
                         }
 
                         Button {
@@ -210,15 +210,11 @@ struct LapReplayView: View {
                     }
 
                     Button {
+                        dataModel.toogleRecordingFlag()
+                    } label: {
+                        Label("Grab", systemImage: "line.3.crossed.swirl.circle")
+                    }
 
-                    } label: {
-                        Label("Record", systemImage: "record.circle")
-                    }
-                    Button {
-                        dataModel.tooglePointerFlag()
-                    } label: {
-                        Label(dataModel.isPointerEnabled ? "Remove Pointer" : "Add Pointer", systemImage: "record.circle")
-                    }
                     Button {
                         dataModel.toogleMeasureFunctionality()
                     } label: {
@@ -226,7 +222,13 @@ struct LapReplayView: View {
                     }
 
                     Section {
-                        Button{
+                        Button {
+                            isPointerActive = !isPointerActive
+                            dataModel.tooglePointerFlag()
+                        } label: {
+                            Label("Pointer", systemImage: isPointerActive ? "checkmark.circle.fill" : "circle")
+                        }
+                        Button {
                             isMeasureActive = !isMeasureActive
                             dataModel.toogleManipulationFlag()
                         } label: {

@@ -25,7 +25,6 @@ struct OverlayButtonsView: View {
                     Button("OK", role: .cancel) { }
                 }
             OverlayButton(imageName: "cloud.sun", deselectAll: deselectAll, action: {}, observable: $weatherSelected)
-            OverlayButton(imageName: "bubble.right", deselectAll: deselectAll, action: {}, observable: $commentsSelected)
             OverlayButton(imageName: "digitalcrown.horizontal.arrow.counterclockwise", deselectAll: deselectAll, action: {}, observable: $timeSelected)
         }
     }

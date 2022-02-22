@@ -39,7 +39,7 @@ final class SessionsDataModel: ObservableObject {
                     }
                 
             } receiveValue: { items in
-                self.sessions = items
+                self.sessions = items.filter({ $0.trackId == "Texas" })
                 print("*")
             }
     }

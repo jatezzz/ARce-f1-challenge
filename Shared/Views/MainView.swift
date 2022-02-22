@@ -86,13 +86,14 @@ struct MainView: View {
     private func renderSessionRow(_ session: Session) -> some View {
         NavigationLink(destination: LapReplayView(session: session)) {
             VStack(alignment: .leading) {
-                Text("Session by \(session.driver)")
+                Text("Session in \(session.trackId)")
                 Group {
-                    Text("\(session.sessionTime)")
-                    Text("\(session.laps) laps")
+                    Text("Driver: \(session.driver)")
+                    Text("Id: \(session.sessionTime)")
+                    Text("Laps: \(session.laps)")
                 }
-                .font(.system(size: 10, weight: .light))
-                .opacity(0.7)
+                        .font(.system(size: 10, weight: .light))
+                        .opacity(0.7)
             }
         }
     }

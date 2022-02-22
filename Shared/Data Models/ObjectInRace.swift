@@ -14,6 +14,7 @@ class ObjectInRace {
     var winnerFrameQuantity = 0
 
     var name = ""
+    var sessionId = ""
     var color: UIColor = .black
 
     var positionList: [Motion] = []
@@ -118,7 +119,7 @@ class ObjectInRace {
             prevLap = cp.mCurrentLap
         }
 
-        return ParticipantViewData(currentSpeed: cp.mSpeed, currentRPM: cp.mEngineRPM, currentGear: cp.mGear, currentSector: cp.mSector, currentLap: cp.mCurrentLap, color: color, name: name)
+        return ParticipantViewData(currentSpeed: cp.mSpeed, currentRPM: cp.mEngineRPM, currentGear: cp.mGear, currentSector: cp.mSector, currentLap: cp.mCurrentLap, color: color, name: name, sessionId: sessionId)
     }
 }
 
@@ -130,4 +131,5 @@ struct ParticipantViewData {
     var currentLap: Int = 0
     var color: UIColor = .black
     var name: String = ""
+    var sessionId: String = ""
 }
