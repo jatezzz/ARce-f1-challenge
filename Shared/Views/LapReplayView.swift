@@ -118,7 +118,6 @@ struct LapReplayView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
-
                     Section {
                         Button {
                             presentingModal = true
@@ -156,7 +155,7 @@ struct LapReplayView: View {
                             } label: {
                                 Label("Track", systemImage: presentingLapInfo ? "checkmark.circle" : "circle")
                             }
-                        }
+                        }.opacity(showOverlay ? 1 : 0)
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
@@ -164,6 +163,7 @@ struct LapReplayView: View {
                 .sheet(isPresented: $presentingModal) {
                     DriversListView(presentedAsModal: self.$presentingModal, session: session, selectedSession: $compareSession)
                 }
+                .opacity(showOverlay ? 1 : 0)
             }
             #if !os(macOS)
             ToolbarItemGroup(placement: .bottomBar) {
@@ -218,6 +218,7 @@ struct LapReplayView: View {
                 } label: {
                     Image(systemName: "gear")
                 }
+                .opacity(showOverlay ? 1 : 0)
 
             }
             #endif
