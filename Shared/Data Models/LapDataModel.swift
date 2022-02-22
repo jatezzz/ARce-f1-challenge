@@ -219,26 +219,18 @@ final class LapDataModel: ObservableObject {
         }
     }
 
-    func zoomIn() {
+    var factor: Float = 1
+    var increment: Float = 0.1
 
+    func zoomIn() {
+        factor += increment
+        container!.transform.scale = [1, 1, 1] * factor
     }
 
     func zoomOut() {
-
+        factor -= increment
+        container!.transform.scale = [1, 1, 1] * factor
     }
-
-    #if !os(macOS)
-//    @objc func handleModelGesture(_ sender: Any) {
-//        switch sender {
-//        case let rotation as EntityRotationGestureRecognizer:
-//            rotation.isEnabled = isManipulationEnabled
-//        case let scale as EntityScaleGestureRecognizer:
-//            scale.isEnabled = isManipulationEnabled
-//        default:
-//            break
-//        }
-//    }
-    #endif
 
     func load(session: Session) {
         objects.removeAll()
