@@ -62,7 +62,7 @@ struct OverlayButton: View {
 
             }
             .padding()
-            .background(.gray.opacity(0.6))
+//            .background(.gray.opacity(0.6))
             .cornerRadius(15)
             .fadeInAnimation(isAnimating: isAppearing)
             .onAppear {

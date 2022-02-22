@@ -229,7 +229,7 @@ struct LapReplayView: View {
                     Button {
 
                     } label: {
-                        Label("Rotate", systemImage: "rotate.3d")
+                        Label("Manipulate", systemImage: "rotate.3d")
                     }
 
                     Button {
@@ -239,9 +239,9 @@ struct LapReplayView: View {
                     }
 
                     Button {
-
+                        dataModel.toogleMeasureFunctionality()
                     } label: {
-                        Label("Measure", systemImage: "ruler")
+                        Label(dataModel.isInMeasureFunctionality ? "Cancel measure" : "Measure", systemImage: "ruler")
                     }
                 } label: {
                     Image(systemName: "gear")

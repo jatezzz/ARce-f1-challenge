@@ -54,6 +54,8 @@
 		A287687327C2972700A8D52A /* carData2_response.json in Resources */ = {isa = PBXBuildFile; fileRef = A287686F27C2972700A8D52A /* carData2_response.json */; };
 		A287687527C2992900A8D52A /* carData3_response.json in Resources */ = {isa = PBXBuildFile; fileRef = A287687427C2992900A8D52A /* carData3_response.json */; };
 		A287687627C2992900A8D52A /* carData3_response.json in Resources */ = {isa = PBXBuildFile; fileRef = A287687427C2992900A8D52A /* carData3_response.json */; };
+		A2AB773727C33E9A001FE27F /* GeometryUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2AB773627C33E9A001FE27F /* GeometryUtils.swift */; };
+		A2AB773827C33E9A001FE27F /* GeometryUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2AB773627C33E9A001FE27F /* GeometryUtils.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -88,6 +90,7 @@
 		A287686E27C2972700A8D52A /* carData1_response.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = carData1_response.json; path = Shared/carData1_response.json; sourceTree = "<group>"; };
 		A287686F27C2972700A8D52A /* carData2_response.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = carData2_response.json; path = Shared/carData2_response.json; sourceTree = "<group>"; };
 		A287687427C2992900A8D52A /* carData3_response.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = carData3_response.json; path = Shared/carData3_response.json; sourceTree = "<group>"; };
+		A2AB773627C33E9A001FE27F /* GeometryUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeometryUtils.swift; sourceTree = "<group>"; };
 		E5E1D6D027C3412B0019F38B /* F1-iPhone-AR-app-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "F1-iPhone-AR-app-Info.plist"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -142,6 +145,7 @@
 				021E2C0D26FCB7CF00D76B0E /* SessionsDataModel.swift */,
 				936D047256AF150D0C784681 /* NetworkHelper.swift */,
 				936D047DB3C4C9920D3F7FF9 /* ObjectInRace.swift */,
+				A2AB773627C33E9A001FE27F /* GeometryUtils.swift */,
 			);
 			path = "Data Models";
 			sourceTree = "<group>";
@@ -353,6 +357,7 @@
 				021E2C0F26FCB7CF00D76B0E /* SessionsDataModel.swift in Sources */,
 				027BC28626FDF15700751081 /* LapReplayView.swift in Sources */,
 				936D006F4BCABCB5D5DD2125 /* NetworkHelper.swift in Sources */,
+				A2AB773827C33E9A001FE27F /* GeometryUtils.swift in Sources */,
 				936D012EC690AA23B904E8FA /* ObjectInRace.swift in Sources */,
 				625964AE27C2FE13003770C1 /* OverlayButtonsView.swift in Sources */,
 			);
@@ -375,6 +380,7 @@
 				02FDCA4F26DF8822002E6C28 /* LapDataModel.swift in Sources */,
 				021E2C0E26FCB7CF00D76B0E /* SessionsDataModel.swift in Sources */,
 				936D07B41D809E97AC592F8C /* NetworkHelper.swift in Sources */,
+				A2AB773727C33E9A001FE27F /* GeometryUtils.swift in Sources */,
 				936D054A70BC13591D8822AE /* ObjectInRace.swift in Sources */,
 				625964AD27C2FE13003770C1 /* OverlayButtonsView.swift in Sources */,
 			);
