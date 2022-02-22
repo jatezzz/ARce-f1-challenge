@@ -48,7 +48,7 @@ class ObjectInRace {
         cameraEntity?.look(at: mainEntity.position, from: [0.1, 0.1, 0], relativeTo: nil)
         #endif
         self.currentFrame = (self.currentFrame < self.frameQuantity - 1) ? (self.currentFrame + 1) : 0
-        return ParticipantViewData(currentSpeed: cp.mSpeed, currentRPM: cp.mEngineRPM, currentGear: cp.mGear, currentSector: cp.mSector, currentLap: cp.mCurrentLap)
+        return ParticipantViewData(currentSpeed: cp.mSpeed, currentRPM: cp.mEngineRPM, currentGear: cp.mGear, currentSector: cp.mSector, currentLap: cp.mCurrentLap, currentSlider: Double(self.currentFrame), total: positionList.count)
     }
 }
 
@@ -58,4 +58,6 @@ struct ParticipantViewData {
     var currentGear: Int = 0
     var currentSector: Int = 0
     var currentLap: Int = 0
+    var currentSlider: Double = 0
+    var total: Int = 0
 }

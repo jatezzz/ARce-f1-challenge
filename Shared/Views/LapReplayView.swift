@@ -29,7 +29,7 @@ struct LapReplayView: View {
     @State var commentsSelected: Bool = false
     @State var timeSelected: Bool = false
 
-    @State var sliderValue: Double = 0
+    
 
     @State private var isAppearing: Bool = false
     @State private var showingAlert = false
@@ -83,18 +83,9 @@ struct LapReplayView: View {
                             }
                             .padding()
                         }
-                        if timeSelected {
-                            #warning("set max value as session duration")
-                            VStack {
-                                Slider(value: $sliderValue, in: 0...20)
-                                Text("Current slider value: \(sliderValue, specifier: "%.2f")")
-                                    .foregroundColor(.white)
-                            }
-                            .fadeInAnimation(isAnimating: isAppearing)
-                            .onAppear {
-                                isAppearing = true
-                            }
-                        }
+//                        if timeSelected {
+                            
+//                        }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     

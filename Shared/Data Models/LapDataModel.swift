@@ -118,6 +118,7 @@ final class LapDataModel: ObservableObject {
             guard let self = self else {
                 return
             }
+            
             self.objects.indices.forEach({
                 let viewData = self.objects[$0].updateAndRetrieveViewData()
                 if let viewData = viewData, $0 == 0 {
@@ -254,7 +255,7 @@ final class LapDataModel: ObservableObject {
         AppModel.shared.appState = .loadingTrack
         self.cancellable = []
         model.reset()
-
+        
         NetworkHelper.shared.fetchPositionData(for: session)
                 .receive(on: RunLoop.main)
                 .sink { completion in
@@ -277,6 +278,8 @@ final class LapDataModel: ObservableObject {
                 .store(in: &self.cancellable)
     }
 
+
+    
     private func addModelToQueueAndSetupContainerProperties(model: ObjectInRace) {
         if objects.count >= 2 {
             objects.removeLast()

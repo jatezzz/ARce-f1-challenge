@@ -16,7 +16,6 @@ struct DataBubbleView: View {
 
     @Binding var presentingEngineInfo: Bool
     @Binding var presentingLapInfo: Bool
-
     var body: some View {
         VStack {
             if presentingEngineInfo {
@@ -28,7 +27,10 @@ struct DataBubbleView: View {
         }
         .font(.system(size: 18, design: .monospaced))
         .foregroundColor(.white)
-
+        VStack {
+            sliderBottom()
+        }
+        .font(.system(size: 10, design: .monospaced))
     }
     
     @ViewBuilder
@@ -63,7 +65,6 @@ struct DataBubbleView: View {
                     .fontWeight(.bold)
                     .frame(width: valueColWidth, alignment: .trailing)
             }
-            
         }
         .frame(width: 150)
         .padding()
@@ -84,6 +85,24 @@ struct DataBubbleView: View {
         .onAppear {
             isAppearing = true
         }
+
+    }
+    
+    @ViewBuilder
+    private func sliderBottom() -> some View {
+//            slider = Double(currentData.currentSlider)
+    //        Double(currentData.currentSlider)
+            VStack {
+                
+                Slider(value: .constant(currentData.currentSlider), in: 0...Double(currentData.total))
+                if currentData.total == 0{
+                    Text("Video: 0%")
+                        .foregroundColor(.white)
+                }else{
+                    Text("Video: \(Int(currentData.currentSlider*100/Double(currentData.total)))%")
+                        .foregroundColor(.white)
+                }
+            }
     }
     
     @ViewBuilder
@@ -127,6 +146,7 @@ struct DataBubbleView: View {
         .onAppear {
             isAppearing = true
         }
+
     }
     
 
