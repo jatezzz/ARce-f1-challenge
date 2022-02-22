@@ -11,13 +11,7 @@ import Foundation
 
 typealias LapData = [Motion]
 
-protocol LocationInModel {
-    var mWorldposx: Double { get }
-    var mWorldposy: Double { get }
-    var mWorldposz: Double { get }
-}
-
-struct Motion: Codable, LocationInModel {
+struct Motion: Codable {
     let mFrame: Int
     let mTimestamp: String
     let mCurrentLap, mSector, mLastLapTimeInMS, mSpeed: Int
@@ -56,34 +50,6 @@ struct Motion: Codable, LocationInModel {
         case mPitch = "M_PITCH"
         case mRoll = "M_ROLL"
         case driver = "DRIVER"
-    }
-}
-
-struct Track: Codable, LocationInModel {
-    let mFrame: Int
-    let mTimestamp: String
-    let mCurrentLap, mSector, mSpeed: Int
-    let mLastLapTimeInMS: Float
-    let mWorldposx, mWorldposy, mWorldposz: Double
-    let mWorldforwarddirx, mWorldforwarddiry, mWorldforwarddirz, mWorldrightdirx: Int
-    let mWorldrightdiry, mWorldrightdirz: Int
-
-    enum CodingKeys: String, CodingKey {
-        case mFrame = "FRAME"
-        case mTimestamp = "RACETIME"
-        case mCurrentLap = "CURRENT_LAP_NUM"
-        case mSector = "SECTOR"
-        case mLastLapTimeInMS = "LAP_DISTANCE"
-        case mSpeed = "SPEED"
-        case mWorldposx = "WORLDPOSX"
-        case mWorldposy = "WORLDPOSY"
-        case mWorldposz = "WORLDPOSZ"
-        case mWorldforwarddirx = "WORLDFORWARDDIRX"
-        case mWorldforwarddiry = "WORLDFORWARDDIRY"
-        case mWorldforwarddirz = "WORLDFORWARDDIRZ"
-        case mWorldrightdirx = "WORLDRIGHTDIRX"
-        case mWorldrightdiry = "WORLDRIGHTDIRY"
-        case mWorldrightdirz = "WORLDRIGHTDIRZ"
     }
 }
 

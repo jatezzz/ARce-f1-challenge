@@ -26,9 +26,19 @@ final class NetworkHelper {
                 .map { URLSession.shared.dataTaskPublisher(for: $0) }
                 .publisher
                 .flatMap(maxPublishers: .max(1)) { $0 } // we serialize the request because we want the laps in the correct order
-                .map (\.data)
+                .map(\.data)
                 .decode(type: LapData.self, decoder: JSONDecoder())
                 //.map { $0.sorted { $0.mFrame < $1.mFrame } }
+                .eraseToAnyPublisher()
+    }
+
+    func fetchSessionsData() -> AnyPublisher<[Session], Error> {
+        let url = URL(string: "https://apigw.withoracle.cloud/formulaai/sessions")!
+
+        return URLSession.shared
+                .dataTaskPublisher(for: url)
+                .map(\.data)
+                .decode(type: SessionsData.self, decoder: JSONDecoder())
                 .eraseToAnyPublisher()
     }
 
