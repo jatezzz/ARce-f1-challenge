@@ -392,7 +392,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"F1 iPhone AR app/Preview Content\"";
-				DEVELOPMENT_TEAM = VJZWNXF7FZ;
+				DEVELOPMENT_TEAM = ZD5TYT35N5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "F1-iPhone-AR-app-Info.plist";
@@ -409,7 +409,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "jatezzz.wpH.F1-iPhone-AR";
+				PRODUCT_BUNDLE_IDENTIFIER = "jatezzz.wpH.F1-iPhone";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -427,7 +427,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"F1 iPhone AR app/Preview Content\"";
-				DEVELOPMENT_TEAM = VJZWNXF7FZ;
+				DEVELOPMENT_TEAM = ZD5TYT35N5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "F1-iPhone-AR-app-Info.plist";
@@ -444,7 +444,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "jatezzz.wpH.F1-iPhone-AR";
+				PRODUCT_BUNDLE_IDENTIFIER = "jatezzz.wpH.F1-iPhone";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
