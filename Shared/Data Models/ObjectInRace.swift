@@ -10,7 +10,8 @@ import UIKit
 class ObjectInRace {
 
     var currentFrame = 0
-    var frameQuantity = 0
+    var prevLap = 0
+    var winnerFrameQuantity = 0
 
     var name = ""
     var color: UIColor = .black
@@ -22,6 +23,8 @@ class ObjectInRace {
     let parentText = Entity()
     let brakeIndicator: ModelEntity
     let throttleIndicator: ModelEntity
+    var onFinish: ((String, Int) -> Void)? = nil
+    var isonFinishCalled = false
 
     init(referenceModel: Entity, camera: PerspectiveCamera?, container: Entity, referenceCone: Entity, color: UIColor, name: String) {
         self.name = name
@@ -77,14 +80,17 @@ class ObjectInRace {
     func reset() {
         positionList = []
         currentFrame = 0
+        prevLap = 0
+        isonFinishCalled = false
     }
 
     func updateAndRetrieveViewData(view: ARView?) -> ParticipantViewData? {
         guard AppModel.shared.appState == .playing, !self.positionList.isEmpty, let view = view else { return nil }
+
         coneEntity.isEnabled = true
         mainEntity.isEnabled = true
         let cp = self.positionList[self.currentFrame]
-        print(cp.brake)
+
         brakeIndicator.transform.scale = [1, cp.brake * 10 + 1, 1] * 10
         throttleIndicator.transform.scale = [1, cp.throttle * 10 + 1, 1] * 10
         mainEntity.position = SIMD3<Float>([cp.mWorldposy, cp.mWorldposz, cp.mWorldposx] / 1960)
@@ -94,7 +100,24 @@ class ObjectInRace {
         #if os(macOS)
         cameraEntity?.look(at: mainEntity.position, from: [0.1, 0.1, 0], relativeTo: nil)
         #endif
-        self.currentFrame = (self.currentFrame < self.frameQuantity - 1) ? (self.currentFrame + 1) : 0
+        if currentFrame < self.positionList.count - 1 {
+            currentFrame = currentFrame + 1
+        } else {
+            currentFrame = 0
+        }
+
+        if currentFrame >= winnerFrameQuantity, !isonFinishCalled {
+            onFinish?(name, currentFrame)
+            isonFinishCalled = !isonFinishCalled
+        }
+        if prevLap != cp.mCurrentLap, prevLap != 0, !isonFinishCalled {
+            onFinish?(name, currentFrame)
+            isonFinishCalled = !isonFinishCalled
+        }
+        if prevLap != cp.mCurrentLap {
+            prevLap = cp.mCurrentLap
+        }
+
         return ParticipantViewData(currentSpeed: cp.mSpeed, currentRPM: cp.mEngineRPM, currentGear: cp.mGear, currentSector: cp.mSector, currentLap: cp.mCurrentLap, color: color, name: name)
     }
 }

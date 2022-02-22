@@ -50,6 +50,9 @@ final class LapDataModel: ObservableObject {
     var customBool = false
     var savedTransform: Transform?
 
+    var winnerText = [""]
+    let parentText = Entity()
+
     init() {
         // Create the 3D view
         arView = ARView(frame: .zero)
@@ -85,6 +88,16 @@ final class LapDataModel: ObservableObject {
 
         // Run the car
 
+        let winnerEntity: ModelEntity = GeometryUtils.createText(text: "")
+
+        winnerEntity.transform.scale = [1, 1, 1] * 0.02
+        winnerEntity.setPosition(SIMD3<Float>([0, 0, 0]), relativeTo: container)
+        winnerEntity.transform.rotation = Transform(pitch: 0.0, yaw: Float.pi, roll: 0.0).rotation
+        parentText.setPosition(SIMD3<Float>([0.5, -0.05, 0]), relativeTo: container)
+
+        parentText.addChild(winnerEntity)
+        container.addChild(parentText)
+
         mainCar = ObjectInRace(referenceModel: myCar, camera: cameraEntity, container: historicalTrack, referenceCone: trackingCone, color: .red, name: "HAM")
 
         secondCar = ObjectInRace(referenceModel: myCar, camera: nil, container: historicalTrack, referenceCone: trackingCone, color: .blue, name: "VER")
@@ -94,6 +107,7 @@ final class LapDataModel: ObservableObject {
         placeEntity(with: container, at: SIMD3.zero)
         container.addChild(historicalTrack)
         container.generateCollisionShapes(recursive: true)
+
 
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapOnARView))
         arView.addGestureRecognizer(tapGesture)
@@ -133,6 +147,7 @@ final class LapDataModel: ObservableObject {
                     self.secondParticipant = viewData
                 }
             })
+            self.parentText.billboard(targetPosition: self.arView.cameraTransform.translation)
         }
     }
 
@@ -285,6 +300,25 @@ final class LapDataModel: ObservableObject {
         AppModel.shared.appState = .loadingTrack
         self.cancellable = []
         model.reset()
+        self.winnerText = []
+        self.parentText.children.forEach({ $0.removeFromParent() })
+
+        model.onFinish = { [weak self] name, frame in
+            guard let self = self else {
+                return
+            }
+            self.parentText.children.forEach({ $0.removeFromParent() })
+            self.winnerText.append("\(self.winnerText.count + 1). \(name) \(frame)s")
+            let winnerEntity: ModelEntity = GeometryUtils.createText(text: self.winnerText.joined(separator: "\n"))
+
+            winnerEntity.transform.scale = [1, 1, 1] * 0.02
+            winnerEntity.setPosition(SIMD3<Float>([0, 0, 0]), relativeTo: self.container)
+
+            winnerEntity.transform.rotation = Transform(pitch: 0.0, yaw: Float.pi, roll: 0.0).rotation
+            self.parentText.setPosition(SIMD3<Float>([0.5, -0.05, 0]), relativeTo: self.container)
+
+            self.parentText.addChild(winnerEntity)
+        }
 
         NetworkHelper.shared.fetchPositionData(for: session)
                 .receive(on: RunLoop.main)
@@ -318,7 +352,7 @@ final class LapDataModel: ObservableObject {
                 .min() ?? 0
         objects.forEach({ model in
             model.currentFrame = 0
-            model.frameQuantity = minQuantity
+            model.winnerFrameQuantity = minQuantity
         })
     }
 }
