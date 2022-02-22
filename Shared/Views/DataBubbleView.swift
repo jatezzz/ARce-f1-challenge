@@ -19,6 +19,7 @@ struct DataBubbleView: View {
 
     var body: some View {
         VStack {
+            Text("\(currentData.name)")
             if presentingEngineInfo {
                 renderTopBubble()
             }
@@ -72,8 +73,8 @@ struct DataBubbleView: View {
                 gradient:
                     Gradient(
                         colors: [
-                            Color(red: 199/255, green: 64/255, blue: 64/255),
-                            Color(red: 207/255, green: 122/255, blue: 122/255)
+                            Color(currentData.color),
+                            Color(red: 122 / 255, green: 122 / 255, blue: 122 / 255)
                         ]
                     ),
                 startPoint: .top, endPoint: .bottom

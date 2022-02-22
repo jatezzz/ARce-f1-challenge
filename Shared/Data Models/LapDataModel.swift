@@ -87,7 +87,7 @@ final class LapDataModel: ObservableObject {
 
         mainCar = ObjectInRace(referenceModel: myCar, camera: cameraEntity, container: historicalTrack, referenceCone: trackingCone, color: .red, name: "HAM")
 
-        secondCar = ObjectInRace(referenceModel: myCar, camera: nil, container: historicalTrack, referenceCone: trackingCone, color: .green, name: "VER")
+        secondCar = ObjectInRace(referenceModel: myCar, camera: nil, container: historicalTrack, referenceCone: trackingCone, color: .blue, name: "VER")
 
         #if !os(macOS)
 
