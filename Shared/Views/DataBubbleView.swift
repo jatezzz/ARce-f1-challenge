@@ -118,8 +118,8 @@ struct DataBubbleView: View {
                 gradient:
                     Gradient(
                         colors: [
-                            Color(red: 51/255, green: 206/255, blue: 51/255),
-                            Color(red: 120/255, green: 206/255, blue: 120/255)
+                            Color(currentData.color),
+                            Color(red: 120 / 255, green: 120 / 255, blue: 120 / 255)
                         ]
                     ),
                 startPoint: .top, endPoint: .bottom
