@@ -14,13 +14,15 @@ struct LapReplayView: View {
     @StateObject var sessionsModel = SessionsDataModel.shared
 
     @State var presentingModal = false
-    
+    @State var presentingSessionModal = false
+
     @State var session: Session
 
     @State var compareSession: Session? = nil
 
     @State var presentingEngineInfo = true
     @State var presentingLapInfo = true
+    @State var isMeasureActive = false
 
     @State var showOverlay = true
 
@@ -32,7 +34,7 @@ struct LapReplayView: View {
     @State var sliderValue: Double = 0
 
     @State private var isAppearing: Bool = false
-    @State private var showingAlert = false
+
     struct ARVariables{
       static var arView: ARView!
     }
@@ -97,36 +99,8 @@ struct LapReplayView: View {
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    
-                    
+
                     VStack {
-                        VStack(alignment: .center, spacing: 10) {
-                            HStack(alignment: .top){
-                                Button {
-                                    LapDataModel.shared.arView.snapshot(saveToHDR: false) { (image) in
-                                      let compressedImage = UIImage(data: (image?.pngData())!)
-                                      UIImageWriteToSavedPhotosAlbum(compressedImage!, nil, nil, nil)
-                                        showingAlert = true
-                                    }
-                                  } label: {
-                                    Image(systemName: "camera")
-                                          .resizable()
-                                          .scaledToFill()
-                                          .foregroundColor(.black)
-                                          .frame(width: 20, height: 20)
-                                  }
-                                  .alert("ScreenShot taken", isPresented: $showingAlert) {
-                                             Button("OK", role: .cancel) { }
-                                         }
-                                  .padding()
-                                  .background(.gray.opacity(0.6))
-                                  .cornerRadius(15)
-                                  .fadeInAnimation(isAnimating: isAppearing)
-                                  .onAppear {
-                                      isAppearing = true
-                                }
-                            }
-                        }
                         HStack{
                             OverlayButtonsView(captureSelected: $captureSelected, weatherSelected: $weatherSelected, commentsSelected: $commentsSelected, timeSelected: $timeSelected)
                             Spacer()
@@ -146,8 +120,13 @@ struct LapReplayView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
-
                     Section {
+                        Button {
+                            presentingSessionModal = true
+                        } label: {
+                            Text("Session Data")
+                        }
+
                         Button {
                             presentingModal = true
                         } label: {
@@ -176,15 +155,15 @@ struct LapReplayView: View {
                             Button{
                                 presentingEngineInfo = !presentingEngineInfo
                             } label: {
-                                Label("Engine", systemImage: presentingEngineInfo ? "checkmark.circle" : "circle")
+                                Label("Engine", systemImage: presentingEngineInfo ? "checkmark.circle.fill" : "circle")
                             }
 
                             Button{
                                 presentingLapInfo = !presentingLapInfo
                             } label: {
-                                Label("Track", systemImage: presentingLapInfo ? "checkmark.circle" : "circle")
+                                Label("Track", systemImage: presentingLapInfo ? "checkmark.circle.fill" : "circle")
                             }
-                        }
+                        }.opacity(showOverlay ? 1 : 0)
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
@@ -192,6 +171,10 @@ struct LapReplayView: View {
                 .sheet(isPresented: $presentingModal) {
                     DriversListView(presentedAsModal: self.$presentingModal, session: session, selectedSession: $compareSession)
                 }
+                .sheet(isPresented: $presentingSessionModal) {
+                    SessionDetailView(presentedAsModal: self.$presentingSessionModal)
+                }
+                .opacity(showOverlay ? 1 : 0)
             }
             #if !os(macOS)
             ToolbarItemGroup(placement: .bottomBar) {
@@ -227,12 +210,6 @@ struct LapReplayView: View {
                     }
 
                     Button {
-                        dataModel.toogleManipulationFlag()
-                    } label: {
-                        Label(dataModel.isManipulationEnabled ? "Cancel Manipulation" : "Manipulate", systemImage: "rotate.3d")
-                    }
-
-                    Button {
 
                     } label: {
                         Label("Record", systemImage: "record.circle")
@@ -247,9 +224,19 @@ struct LapReplayView: View {
                     } label: {
                         Label(dataModel.isInMeasureFunctionality ? "Cancel measure" : "Measure", systemImage: "ruler")
                     }
+
+                    Section {
+                        Button{
+                            isMeasureActive = !isMeasureActive
+                        } label: {
+                            Label("Manipulate", systemImage: isMeasureActive ? "checkmark.circle.fill" : "circle")
+                        }
+                    }.opacity(showOverlay ? 1 : 0)
+
                 } label: {
                     Image(systemName: "gear")
                 }
+                .opacity(showOverlay ? 1 : 0)
 
             }
             #endif
