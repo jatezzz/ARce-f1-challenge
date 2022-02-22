@@ -12,7 +12,18 @@ struct SessionDetailView: View {
     @Binding var presentedAsModal: Bool
 
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Text("Title")
+            .font(.title)
+            .frame(alignment: .leading)
+            .padding()
+        Form {
+            Section(header: Text("Section header")) {
+                Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+            }
+        }
+
+
+
         Button("Return") { self.presentedAsModal = false }
                 .font(.body.bold())
                 .padding()
