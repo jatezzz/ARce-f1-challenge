@@ -17,10 +17,13 @@ final class LapDataModel: ObservableObject {
 
     static var shared = LapDataModel()
 
+    var subscriptions = Set<AnyCancellable>()
+
     @Published var arView: ARView!
 
     @Published var mainParticipant: ParticipantViewData = ParticipantViewData()
     @Published var secondarticipant: ParticipantViewData = ParticipantViewData()
+    @Published var isInMeasureFunctionality = false
 
     let mainCar: ObjectInRace
     let secondCar: ObjectInRace
@@ -134,24 +137,82 @@ final class LapDataModel: ObservableObject {
 
     var customBool = false
     var savedTransform : Transform?
-    let originVector = simd_float3(0, 0, 1)
-    var angle: Float = 0
-    func degreesToRadians(_ degrees: Float) -> Float {
-        return degrees * .pi / 180
-    }
+
     @objc func tapOnARView(sender: UITapGestureRecognizer) {
         guard let arView = arView else { return }
-        
+        if isInMeasureFunctionality {
+            let location = sender.location(in: arView)
+            if let result = raycastResult(fromLocation: location) {
+                addCircle(raycastResult: result)
+            }
+            return
+        }
         if customBool, let savedTransform = savedTransform, let container = container {
-            self.container?.transform.translation = container.transform.translation - (savedTransform.translation-arView.cameraTransform.translation)
-            
+            self.container?.transform.translation = container.transform.translation - (savedTransform.translation - arView.cameraTransform.translation)
+
         }
         savedTransform = arView.cameraTransform
         customBool = !customBool
-       
+
     }
-    
-    
+
+
+    private var circles: [Entity] = []
+
+    private func raycastResult(fromLocation location: CGPoint) -> CollisionCastHit? {
+        guard let ray = self.arView.ray(through: location) else { return nil }
+
+        let results = arView.scene.raycast(origin: ray.origin, direction: ray.direction)
+        return results.first
+    }
+
+    private func addCircle(raycastResult: CollisionCastHit) {
+        let circleNode = GeometryUtils.createSphere()
+        if circles.count >= 2 {
+            for circle in circles {
+                circle.removeFromParent()
+            }
+            circles.removeAll()
+        }
+
+        container.addChild(circleNode)
+        circleNode.setPosition(raycastResult.position, relativeTo: nil)
+        circles.append(circleNode)
+        nodesUpdated()
+    }
+
+
+    private func nodesUpdated() {
+        if circles.count == 2 {
+            let distance = GeometryUtils.calculateDistance(firstNode: circles[0], secondNode: circles[1])
+            let textModel = GeometryUtils.createText(text: "\(distance)m")
+            textModel.transform.scale = [1, 1, 1] * 0.05
+            textModel.transform.rotation = Transform(pitch: 0.0, yaw: Float.pi, roll: 0.0).rotation
+            textModel.setPosition(circles[1].position + [0, 0.01, 0], relativeTo: nil)
+            let parentText = Entity()
+            parentText.setPosition(circles[1].position + [0, 0.01, 0], relativeTo: nil)
+            arView.scene.subscribe(to: SceneEvents.Update.self) { [self] _ in
+                        parentText.billboard(targetPosition: arView.cameraTransform.translation)
+                    }
+                    .store(in: &subscriptions)
+
+            parentText.addChild(textModel, preservingWorldTransform: true)
+            container.addChild(parentText)
+            circles.append(textModel)
+            print("distance = \(distance)")
+        }
+    }
+
+    func toogleMeasureFunctionality() {
+        isInMeasureFunctionality = !isInMeasureFunctionality
+        if !isInMeasureFunctionality, !circles.isEmpty {
+            for circle in circles {
+                circle.removeFromParent()
+            }
+            circles.removeAll()
+        }
+    }
+
     #if !os(macOS)
     @objc func handleModelGesture(_ sender: Any) {
         switch sender {
@@ -262,15 +323,22 @@ extension matrix_float4x4 {
             if abs(sinp) >= 1 {
                 pitch = radiansToDegress(radians:copysign(Float.pi / 2, sinp))
             } else {
-                pitch = radiansToDegress(radians:asin(sinp))
+                pitch = radiansToDegress(radians: asin(sinp))
             }
             /// roll (x-axis rotation)
             let sinr = +2.0 * (qw * qx + qy * qz)
             let cosr = +1.0 - 2.0 * (qx * qx + qy * qy)
-            let roll = radiansToDegress(radians:atan2(sinr, cosr))
-            
+            let roll = radiansToDegress(radians: atan2(sinr, cosr))
+
             /// return array containing ypr values
             return SCNVector3(yaw, pitch, roll)
-            }
+        }
+    }
+}
+
+extension Entity {
+    /// Billboards the entity to the targetPosition which should be provided in world space.
+    func billboard(targetPosition: SIMD3<Float>) {
+        look(at: targetPosition, from: position(relativeTo: nil), relativeTo: nil)
     }
 }
