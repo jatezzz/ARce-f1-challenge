@@ -220,7 +220,7 @@ final class LapDataModel: ObservableObject {
     }
 
     var factor: Float = 1
-    var increment: Float = 0.1
+    var increment: Float = 0.3
 
     func zoomIn() {
         factor += increment
