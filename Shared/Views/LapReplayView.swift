@@ -21,6 +21,7 @@ struct LapReplayView: View {
 
     @State var presentingEngineInfo = true
     @State var presentingLapInfo = true
+    @State var isMeasureActive = false
 
     @State var showOverlay = true
 
@@ -147,13 +148,13 @@ struct LapReplayView: View {
                             Button{
                                 presentingEngineInfo = !presentingEngineInfo
                             } label: {
-                                Label("Engine", systemImage: presentingEngineInfo ? "checkmark.circle" : "circle")
+                                Label("Engine", systemImage: presentingEngineInfo ? "checkmark.circle.fill" : "circle")
                             }
 
                             Button{
                                 presentingLapInfo = !presentingLapInfo
                             } label: {
-                                Label("Track", systemImage: presentingLapInfo ? "checkmark.circle" : "circle")
+                                Label("Track", systemImage: presentingLapInfo ? "checkmark.circle.fill" : "circle")
                             }
                         }.opacity(showOverlay ? 1 : 0)
                     }
@@ -201,12 +202,6 @@ struct LapReplayView: View {
                     Button {
 
                     } label: {
-                        Label("Manipulate", systemImage: "rotate.3d")
-                    }
-
-                    Button {
-
-                    } label: {
                         Label("Record", systemImage: "record.circle")
                     }
 
@@ -215,6 +210,15 @@ struct LapReplayView: View {
                     } label: {
                         Label(dataModel.isInMeasureFunctionality ? "Cancel measure" : "Measure", systemImage: "ruler")
                     }
+
+                    Section {
+                        Button{
+                            isMeasureActive = !isMeasureActive
+                        } label: {
+                            Label("Manipulate", systemImage: isMeasureActive ? "checkmark.circle.fill" : "circle")
+                        }
+                    }.opacity(showOverlay ? 1 : 0)
+
                 } label: {
                     Image(systemName: "gear")
                 }
