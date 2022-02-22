@@ -29,6 +29,8 @@ struct Motion: Codable, LocationInModel {
     let mYaw, mPitch, mRoll: Float
     let driver: String
 
+    let throttle, steer, brake: Float
+
     enum CodingKeys: String, CodingKey {
         case mFrame = "M_FRAME"
         case mTimestamp = "M_TIMESTAMP"
@@ -37,6 +39,9 @@ struct Motion: Codable, LocationInModel {
         case mLastLapTimeInMS = "M_LAST_LAP_TIME_IN_MS"
         case mSpeed = "M_SPEED"
         case mGear = "M_GEAR"
+        case throttle = "M_THROTTLE"
+        case steer = "M_STEER"
+        case brake = "M_BRAKE"
         case mEngineRPM = "M_ENGINERPM"
         case mWorldposx = "M_WORLDPOSX"
         case mWorldposy = "M_WORLDPOSY"

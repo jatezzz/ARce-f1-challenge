@@ -38,9 +38,9 @@ class GeometryUtils {
         return planeAnchor
     }
 
-    static func createBox() -> ModelEntity {
+    static func createBox(color: UIColor = .blue) -> ModelEntity {
         let box = MeshResource.generateBox(size: 0.08) // Generate mesh
-        let boxMaterial = SimpleMaterial(color: .blue, isMetallic: true)
+        let boxMaterial = SimpleMaterial(color: color, isMetallic: true)
         let boxEntity = ModelEntity(mesh: box, materials: [boxMaterial])
         return boxEntity
     }

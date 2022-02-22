@@ -20,10 +20,13 @@ class ObjectInRace {
     let cameraEntity: PerspectiveCamera?
     let coneEntity: Entity
     let parentText = Entity()
+    let brakeIndicator: ModelEntity
+    let throttleIndicator: ModelEntity
 
     init(referenceModel: Entity, camera: PerspectiveCamera?, container: Entity, referenceCone: Entity, color: UIColor, name: String) {
         self.name = name
         self.color = color
+        self.cameraEntity = camera
 
         mainEntity = referenceModel.clone(recursive: true)
         coneEntity = referenceCone.clone(recursive: true)
@@ -59,7 +62,16 @@ class ObjectInRace {
         parentText.addChild(nameEntity)
         mainEntity.addChild(parentText)
 
-        cameraEntity = camera
+
+        brakeIndicator = GeometryUtils.createBox(color: .red)
+        mainEntity.addChild(brakeIndicator)
+        brakeIndicator.transform.scale = [1, 1, 1] * 10
+        brakeIndicator.setPosition(SIMD3<Float>([10, 0, -4]), relativeTo: mainEntity)
+
+        throttleIndicator = GeometryUtils.createBox(color: .yellow)
+        mainEntity.addChild(throttleIndicator)
+        throttleIndicator.transform.scale = [1, 1, 1] * 10
+        throttleIndicator.setPosition(SIMD3<Float>([10, 0, 0]), relativeTo: mainEntity)
     }
 
     func reset() {
@@ -72,6 +84,9 @@ class ObjectInRace {
         coneEntity.isEnabled = true
         mainEntity.isEnabled = true
         let cp = self.positionList[self.currentFrame]
+        print(cp.brake)
+        brakeIndicator.transform.scale = [1, cp.brake * 10 + 1, 1] * 10
+        throttleIndicator.transform.scale = [1, cp.throttle * 10 + 1, 1] * 10
         mainEntity.position = SIMD3<Float>([cp.mWorldposy, cp.mWorldposz, cp.mWorldposx] / 1960)
         mainEntity.transform.rotation = Transform(pitch: cp.mPitch, yaw: cp.mYaw, roll: cp.mRoll).rotation
         parentText.billboard(targetPosition: view.cameraTransform.translation)
