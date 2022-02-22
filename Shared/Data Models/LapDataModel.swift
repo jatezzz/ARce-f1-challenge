@@ -84,9 +84,10 @@ final class LapDataModel: ObservableObject {
         // Initially position the camera
 
         // Run the car
-        mainCar = ObjectInRace(referenceModel: myCar, camera: cameraEntity, container: historicalTrack, referenceCone: trackingCone)
 
-        secondCar = ObjectInRace(referenceModel: myCar, camera: nil, container: historicalTrack, referenceCone: trackingCone)
+        mainCar = ObjectInRace(referenceModel: myCar, camera: cameraEntity, container: historicalTrack, referenceCone: trackingCone, color: .red, name: "HAM")
+
+        secondCar = ObjectInRace(referenceModel: myCar, camera: nil, container: historicalTrack, referenceCone: trackingCone, color: .green, name: "VER")
 
         #if !os(macOS)
 
@@ -102,7 +103,9 @@ final class LapDataModel: ObservableObject {
         #if os(macOS)
         cameraEntity.look(at: trackDefaultOnMap.position, from: [0, 50, 0], relativeTo: nil)
         #endif
-        let trackAnchor = AnchorEntity(plane: .horizontal, classification: .table)
+//        let trackAnchor = AnchorEntity(plane: .horizontal, classification: .table)
+        let trackAnchor = AnchorEntity(world: .zero)
+//        let trackAnchor = AnchorEntity(plane: .horizontal)
         #if os(macOS)
         trackAnchor.addChild(historicalTrack)
         #else
@@ -122,7 +125,7 @@ final class LapDataModel: ObservableObject {
                 return
             }
             self.objects.indices.forEach({
-                let viewData = self.objects[$0].updateAndRetrieveViewData()
+                let viewData = self.objects[$0].updateAndRetrieveViewData(view: self.arView)
                 if let viewData = viewData, $0 == 0 {
                     self.mainParticipant = viewData
                 }

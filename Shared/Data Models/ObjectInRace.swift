@@ -5,6 +5,7 @@
 import Foundation
 import Combine
 import RealityKit
+import UIKit
 
 class ObjectInRace {
 
@@ -15,8 +16,9 @@ class ObjectInRace {
     let mainEntity: Entity
     let cameraEntity: PerspectiveCamera?
     let coneEntity: Entity
+    let parentText = Entity()
 
-    init(referenceModel: Entity, camera: PerspectiveCamera?, container: Entity, referenceCone: Entity) {
+    init(referenceModel: Entity, camera: PerspectiveCamera?, container: Entity, referenceCone: Entity, color: UIColor, name: String) {
         mainEntity = referenceModel.clone(recursive: true)
         coneEntity = referenceCone.clone(recursive: true)
         coneEntity.isEnabled = true
@@ -28,6 +30,28 @@ class ObjectInRace {
         coneEntity.transform.scale = [1, 1, 1] * 200
         coneEntity.setPosition(SIMD3<Float>([0, 50, 0]), relativeTo: mainEntity)
 
+        let externalLocator: ModelEntity = GeometryUtils.createSphere(color: color)
+        mainEntity.addChild(externalLocator)
+        externalLocator.transform.scale = [1, 1, 1] * 1000
+        externalLocator.setPosition(SIMD3<Float>([0, 30, 0]), relativeTo: mainEntity)
+
+        let internalLocator: ModelEntity = GeometryUtils.createSphere(color: color)
+        mainEntity.addChild(internalLocator)
+        internalLocator.transform.scale = [1, 1, 1] * 300
+        internalLocator.setPosition(SIMD3<Float>([0, 3, 0]), relativeTo: mainEntity)
+
+
+        let nameEntity: ModelEntity = GeometryUtils.createText(text: name)
+
+        nameEntity.transform.scale = [1, 1, 1] * 50
+        nameEntity.setPosition(SIMD3<Float>([0, 4, 0]), relativeTo: mainEntity)
+
+        nameEntity.transform.rotation = Transform(pitch: 0.0, yaw: Float.pi, roll: 0.0).rotation
+        parentText.setPosition(SIMD3<Float>([0, 4, 0]), relativeTo: mainEntity)
+
+        parentText.addChild(nameEntity)
+        mainEntity.addChild(parentText)
+
         cameraEntity = camera
     }
 
@@ -36,13 +60,13 @@ class ObjectInRace {
         currentFrame = 0
     }
 
-    func updateAndRetrieveViewData() -> ParticipantViewData? {
-        guard AppModel.shared.appState == .playing, !self.positionList.isEmpty else { return nil }
+    func updateAndRetrieveViewData(view: ARView?) -> ParticipantViewData? {
+        guard AppModel.shared.appState == .playing, !self.positionList.isEmpty, let view = view else { return nil }
 
         let cp = self.positionList[self.currentFrame]
         mainEntity.position = SIMD3<Float>([cp.mWorldposy, cp.mWorldposz, cp.mWorldposx] / 1960)
         mainEntity.transform.rotation = Transform(pitch: cp.mPitch, yaw: cp.mYaw, roll: cp.mRoll).rotation
-
+        parentText.billboard(targetPosition: view.cameraTransform.translation)
         // converting the API coordinates to match the visible track
         #if os(macOS)
         cameraEntity?.look(at: mainEntity.position, from: [0.1, 0.1, 0], relativeTo: nil)
