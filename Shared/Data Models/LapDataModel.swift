@@ -80,8 +80,6 @@ final class LapDataModel: ObservableObject {
         let trackingCone = carScene.trackingCone!
 
         myCar.transform.scale = [1, 1, 1] * 0.0008
-        myCar.isEnabled = false
-        trackingCone.isEnabled = false
 
         // Initially position the camera
 
@@ -104,17 +102,16 @@ final class LapDataModel: ObservableObject {
         #if os(macOS)
         cameraEntity.look(at: trackDefaultOnMap.position, from: [0, 50, 0], relativeTo: nil)
         #endif
-        let trackAnchor = AnchorEntity(world: .zero)
-        #if !os(macOS)
-        trackAnchor.addChild(container)
-        #else
+        let trackAnchor = AnchorEntity(plane: .horizontal, classification: .table)
+        #if os(macOS)
         trackAnchor.addChild(historicalTrack)
+        #else
+        trackAnchor.addChild(container)
         #endif
 
         #if !targetEnvironment(simulator) && !os(macOS)
         arView.addCoaching()
         #endif
-        arView.scene.anchors.append(carScene)
         arView.scene.addAnchor(trackAnchor)
         #if os(macOS)
         arView.scene.addAnchor(cameraAnchor)
