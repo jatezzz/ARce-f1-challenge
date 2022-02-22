@@ -422,7 +422,6 @@ final class LapDataModel: ObservableObject {
     }
 }
 
-
 struct WeatherForecast {
     let type: Int
     let x: Float
