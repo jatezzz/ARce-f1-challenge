@@ -102,9 +102,9 @@ final class LapDataModel: ObservableObject {
         parentText.addChild(winnerEntity)
         container.addChild(parentText)
 
-        mainCar = ObjectInRace(referenceModel: myCar, camera: cameraEntity, container: historicalTrack, referenceCone: trackingCone, color: .red, name: "HAM")
+        mainCar = ObjectInRace(referenceModel: myCar, camera: cameraEntity, container: historicalTrack, referenceCone: trackingCone, color: .red, name: "Lewis")
 
-        secondCar = ObjectInRace(referenceModel: myCar, camera: nil, container: historicalTrack, referenceCone: trackingCone, color: .blue, name: "VER")
+        secondCar = ObjectInRace(referenceModel: myCar, camera: nil, container: historicalTrack, referenceCone: trackingCone, color: .blue, name: "Max")
 
         #if !os(macOS)
 
@@ -329,9 +329,9 @@ final class LapDataModel: ObservableObject {
             }
             self.parentText.children.forEach({ $0.removeFromParent() })
             self.winnerText.append("\(self.winnerText.count + 1). \(name) \(frame)s")
-            let winnerEntity: ModelEntity = GeometryUtils.createText(text: self.winnerText.joined(separator: "\n"))
+            let winnerEntity: ModelEntity = GeometryUtils.createText(text: self.winnerText.joined(separator: "\n"), color: .yellow)
 
-            winnerEntity.transform.scale = [1, 1, 1] * 0.02
+            winnerEntity.transform.scale = [1, 1, 1] * 0.1
             winnerEntity.setPosition(SIMD3<Float>([0, 0, 0]), relativeTo: self.container)
 
             winnerEntity.transform.rotation = Transform(pitch: 0.0, yaw: Float.pi, roll: 0.0).rotation

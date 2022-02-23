@@ -55,7 +55,7 @@ class ObjectInRace {
         internalLocator.setPosition(SIMD3<Float>([0, 3, 0]), relativeTo: mainEntity)
 
 
-        let nameEntity: ModelEntity = GeometryUtils.createText(text: name)
+        let nameEntity: ModelEntity = GeometryUtils.createText(text: name, color: color)
 
         nameEntity.transform.scale = [1, 1, 1] * 50
         nameEntity.setPosition(SIMD3<Float>([0, 4, 0]), relativeTo: mainEntity)
@@ -69,12 +69,12 @@ class ObjectInRace {
 
         brakeIndicator = GeometryUtils.createBox(color: .red)
         mainEntity.addChild(brakeIndicator)
-        brakeIndicator.transform.scale = [1, 1, 1] * 10
+        brakeIndicator.transform.scale = [1, 1, 1] * 15
         brakeIndicator.setPosition(SIMD3<Float>([10, 0, -4]), relativeTo: mainEntity)
 
         throttleIndicator = GeometryUtils.createBox(color: .yellow)
         mainEntity.addChild(throttleIndicator)
-        throttleIndicator.transform.scale = [1, 1, 1] * 10
+        throttleIndicator.transform.scale = [1, 1, 1] * 15
         throttleIndicator.setPosition(SIMD3<Float>([10, 0, 0]), relativeTo: mainEntity)
     }
 
@@ -92,8 +92,8 @@ class ObjectInRace {
         mainEntity.isEnabled = true
         let cp = self.positionList[self.currentFrame]
 
-        brakeIndicator.transform.scale = [1, cp.brake * 10 + 1, 1] * 10
-        throttleIndicator.transform.scale = [1, cp.throttle * 10 + 1, 1] * 10
+        brakeIndicator.transform.scale = [1, cp.brake * 10 + 1, 1] * 15
+        throttleIndicator.transform.scale = [1, cp.throttle * 10 + 1, 1] * 15
         mainEntity.position = SIMD3<Float>([cp.mWorldposy, cp.mWorldposz, cp.mWorldposx] / 1960)
         mainEntity.transform.rotation = Transform(pitch: cp.mPitch, yaw: cp.mYaw, roll: cp.mRoll).rotation
         parentText.billboard(targetPosition: view.cameraTransform.translation)
