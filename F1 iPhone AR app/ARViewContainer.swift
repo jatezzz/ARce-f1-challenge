@@ -22,9 +22,9 @@ extension ARView: ARCoachingOverlayViewDelegate {
     func addCoaching() {
         let coachingOverlay = ARCoachingOverlayView()
         coachingOverlay.delegate = self
-        #if !targetEnvironment(simulator)
+#if !targetEnvironment(simulator)
         coachingOverlay.session = self.session
-        #endif
+#endif
         coachingOverlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         coachingOverlay.goal = .horizontalPlane
         self.addSubview(coachingOverlay)

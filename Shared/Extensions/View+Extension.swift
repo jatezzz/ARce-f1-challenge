@@ -8,16 +8,15 @@
 import SwiftUI
 
 extension View {
-
+    
     func fadeInAnimation(isAnimating: Bool) -> some View {
         self
             .blur(radius: isAnimating ? 0 : 10)
             .opacity(isAnimating ? 1 : 0)
             .scaleEffect(isAnimating ? 1 : 0.5)
             .animation(.easeIn(duration: 0.2), value: isAnimating)
-
     }
-
+    
     func fadeOutAnimation(isAnimating: Bool) -> some View {
         self
             .blur(radius: !isAnimating ? 0 : 10)

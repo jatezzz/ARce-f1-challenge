@@ -12,36 +12,28 @@ import Combine
 
 final class SessionsDataModel: ObservableObject {
     static var shared = SessionsDataModel()
-    
     @Published var sessions: [Session] = []
-    
     private var cancellable: AnyCancellable?
-    
     init() {
-        // Load the sessions data from ATP
         loadSessions()
     }
-    
     func loadSessions() {
         self.sessions = []
         AppModel.shared.appState = .loadingSessions
-        
         self.cancellable = NetworkHelper.shared.fetchSessionsData()
-                .receive(on: RunLoop.main)
-                .sink { completion in
-                    print(completion)
-
-                    switch completion {
-                    case .finished:
-                        AppModel.shared.appState = .waitToLoadTrack
-                    case let .failure(error):
-                        AppModel.shared.appState = .error(msg: error.localizedDescription)
-                    }
-                
+            .receive(on: RunLoop.main)
+            .sink { completion in
+                print(completion)
+                switch completion {
+                case .finished:
+                    AppModel.shared.appState = .waitToLoadTrack
+                case let .failure(error):
+                    AppModel.shared.appState = .error(msg: error.localizedDescription)
+                }
             } receiveValue: { items in
                 self.sessions = items.filter({ $0.trackId == "Texas" })
                 print("*")
             }
     }
-
+    
 }
